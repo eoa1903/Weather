@@ -49,7 +49,7 @@ public class KafkaConsumerConfig {
         ConcurrentKafkaListenerContainerFactory<String, Weather> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
-        factory.getContainerProperties().setPollTimeout(2500); //2.5 secs
+        factory.getContainerProperties().setPollTimeout(2000); //2.5 secs
         factory.setBatchListener(true);
         return factory;
     }

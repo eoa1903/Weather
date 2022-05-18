@@ -34,8 +34,8 @@ public class WeatherApplication {
 		PooledConnectionProvider provider = new PooledConnectionProvider(config);
 		UnifiedJedis client = new UnifiedJedis(provider);
 
-		int i=50000;
-		while(i<100000) {
+		int i=100001;
+		while(i<1000000) {
 			JsonObject obj = new JsonObject();
 			obj.addProperty("id", i);
 			/*if( i%2 == 0){

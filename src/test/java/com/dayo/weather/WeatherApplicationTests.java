@@ -41,7 +41,7 @@ class WeatherApplicationTests {
 		int i = 0;
 
 		while (true) {
-			producerRecord = new ProducerRecord<>("weather-data", 0,"Group[1]", new Weather(i, "Rainfall", 234.56, 45.67, Instant.now().atZone(zoneId).toInstant().toEpochMilli()));
+			producerRecord = new ProducerRecord<>("weather-data", 0,"1", new Weather(i, "Rainfall", 234.56, 45.67, Instant.now().atZone(zoneId).toInstant().toEpochMilli()));
 			ListenableFuture<SendResult<String, Weather>> future = kafkaTemplate.send(producerRecord);
 			i++;
 			future.addCallback(new ListenableFutureCallback<SendResult<String, Weather>>() {

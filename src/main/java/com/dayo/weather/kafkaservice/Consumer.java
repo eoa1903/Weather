@@ -33,6 +33,7 @@ public class Consumer {
     private long timestamp;
     private String policy_type;
     private long policy_time;
+    private long time_holder;
     private Map<String,Object> map;
     private Iterator<?> set;
     private int weather_id;
@@ -44,18 +45,11 @@ public class Consumer {
 
    @KafkaListener( topics = "weather-data", concurrency = "1",groupId = "weatherSubscriber")
     public void listener(ConsumerRecords<String, Weather>records) throws JSONException {          //polling maximum of 1000 records every 5sec
-
-       //log.info("Error ->{}",records.count());
-        //Go through each batch of records
-        //System.out.println("Time received"+ Instant.now(Clock.systemUTC()));
-        //log.info("Time received -> {}", Instant.now(Clock.systemUTC()));
         for (ConsumerRecord<String,Weather> m:records) {
             long time=(ZonedDateTime.ofInstant(Instant.now(),zoneId).toInstant().toEpochMilli() - m.timestamp())/ (1000*60) %60;
-            if(time <10) {
-               // break;
-             }
-           set = m.value().json().keys();                                                   //id,phyQt,lat,lon,timestamp:5
-          map = new HashMap<>();
+            log.info("Data -> {}",m);
+            set = m.value().json().keys();                                                   //id,phyQt,lat,lon,timestamp:5
+            map = new HashMap<>();
 
           //Get All keys and DataTypes of the json obj
           while(set.hasNext()) {
@@ -63,25 +57,21 @@ public class Consumer {
               map.put(value.toString(), m.value().json().get(value.toString()).getClass().getSimpleName());
           }
 
-//           if(isValid(m,map)) {
-//               //m=null;
-//               log.info("SUCCESSFUL -> {}, Weather time -> {}, consumer Time -> {}", m.value().json().toString(), m.value().getZonedDateTime(), zonedDateTime);
-//
-//           }else {
-//               log.info("FAILED -> {}, Weather time -> {}, consumer Time -> {}", m.value().json().toString(),m.value().getZonedDateTime(),zonedDateTime );
-//               m = null;
-//           }//discard data
+           if(isValid(m,map)) {
+               log.info("SUCCESSFUL -> {}, Weather time -> {}, consumer Time -> {}", m.value().json().toString(), m.value().getZonedDateTime(), zonedDateTime);
+
+           }else {
+               log.info("FAILED -> {}, Weather time -> {}, consumer Time -> {}", m.value().json().toString(),m.value().getZonedDateTime(),zonedDateTime );
+               m = null;
+           }
 
        }
-        //System.out.println("Time done"+ Instant.now(Clock.systemUTC()));
-        //log.info("Time Done -> {}, size -> {}", Instant.now(Clock.systemUTC()),records.count());
-        //countDownLatch0.countDown();                                                        //Begin countdown
     }
 
    public boolean isValid(ConsumerRecord<String,Weather> data, Map<String,Object>map ) throws JSONException{
        zonedDateTime =ZonedDateTime.now().withZoneSameInstant(zoneId);
-        weather_id = data.value().json().getInt("id");                                    //Weather's ID sent by the user
-       obj = client.jsonGet("id_"+weather_id);                                               //we verify with db with a json result or null
+       // weather_id = data.;                                      //Weather's ID sent by the user
+       obj = client.jsonGet("id_"+data.key());                                               //we verify with db with a json result or null
 
        //Step 1. Check if the keys exists
        if(obj.toString() != null){
@@ -89,10 +79,8 @@ public class Consumer {
            json = JsonParser.parseString(obj.toString()).getAsJsonObject();
            policy_type = json.get("policy_time_name").getAsString();
            policy_time = json.get("policy_time_value").getAsLong();
-           //System.out.println(data.value().toString());
-           timestamp = data.value().getZonedDateTime();//ZonedDateTime.ofInstant( Instant.parse(data.value().json().getStr("timestamp").replace("[UTC]","")) , zoneId );
-
-           difference = zonedDateTime.toInstant().toEpochMilli()-data.value().getZonedDateTime();
+           timestamp = data.value().json().getLong("timestamp");
+           difference = zonedDateTime.toInstant().toEpochMilli() - data.value().getZonedDateTime();
            differenceSecs = difference / 1000 % 60;
            differenceMinutes = difference/ (60 * 1000) % 60;
            differenceHours = difference / (60 * 60 * 1000) % 24;
@@ -103,52 +91,55 @@ public class Consumer {
            //Step 2. Check if the Policy time matches.
            switch(policy_type){
                case "secs":
-
-                   if(differenceMinutes==0&&differenceDays==0 &&differenceHours==0){
-                        if(differenceSecs>policy_time)
-                            return false;
-                    }
-                   else{
-                        log.info("Failed by secs timeConsumed -> {} timeWeather -> {} differences ->{} Days {} hours {} mins {} secs",zonedDateTime.toInstant().toEpochMilli(),timestamp,differenceDays,differenceHours,differenceMinutes, differenceSecs);
-                        return false;
-                   }
-                   break;
-
-               case "mins":
-                   if(differenceDays==0 && differenceHours==0) {
-                       if(differenceMinutes <= policy_time ) {
-                           if (differenceSecs > 0 && differenceMinutes == policy_time) {
-                               return false;
-                           }
+                   if(time_holder != 0){
+                       if((timestamp - time_holder) >= (policy_time*1000)){
+                           time_holder = timestamp;
                        }
-                       else
+                       else{
                            return false;
-                   }
-                   else{
-                       log.info("Failed by mins timeConsumed -> {} timeWeather -> {} differences ->{} Days {} hours {} mins {} secs",zonedDateTime.toInstant().toEpochMilli(),timestamp, differenceDays,differenceHours,differenceMinutes, differenceSecs);
-                       return false;
-                   }
-                   break;
-
-               case "hours":
-                   if(differenceDays==0) {
-                       if(differenceHours <= policy_time){
-                           if(differenceMinutes>0|| differenceSecs>0 && differenceHours ==policy_time)
-                               return false;
                        }
-                       else
-                           return false;
                    }
                    else{
-                       log.info("Failed by mins timeConsumed -> {} timeWeather -> {} differences ->{} Days {} hours {} mins {} secs",zonedDateTime.toInstant().toEpochMilli(),timestamp, differenceDays,differenceHours,differenceMinutes, differenceSecs);
-                       return false;
+                       time_holder = timestamp;
                    }
                    break;
-
                case "days":
-                   if(differenceDays >= policy_time &&(differenceMinutes >0||differenceHours>0||differenceSecs>0)) {
-                       log.info("Failed by days timeConsumed -> {} timeWeather -> {} differences ->{} Days {} hours {} mins {} secs",zonedDateTime.toInstant().toEpochMilli(),timestamp, differenceDays,differenceHours,differenceMinutes, differenceSecs);
-                       return false;
+                   if(time_holder != 0){
+                       if((timestamp - time_holder) >= (policy_time*24 * 60 * 60 * 1000)){
+                           time_holder = timestamp;
+                       }
+                       else{
+                           return false;
+                       }
+                   }
+                   else{
+                       time_holder = timestamp;
+                   }
+                   break;
+               case "mins":
+                   if(time_holder != 0){
+                       if((timestamp - time_holder) >= (policy_time*60 * 1000) ){
+                           time_holder = timestamp;
+                       }
+                       else{
+                           return false;
+                       }
+                   }
+                   else{
+                       time_holder = timestamp;
+                   }
+                   break;
+               case "hours":
+                   if(time_holder != 0){
+                       if((timestamp - time_holder) >= (policy_time*60 * 60 * 1000)){
+                           time_holder = timestamp;
+                       }
+                       else{
+                           return false;
+                       }
+                   }
+                   else{
+                       time_holder = timestamp;
                    }
                    break;
            }
@@ -160,7 +151,7 @@ public class Consumer {
 
                // Step 4. Enter a while loop to verify the schemas
                while(variables.hasNext()){                                                                          //while the loop through them
-                   redis_fields = variables.next().getAsJsonObject();   //Get the each OBject one after the other
+                   redis_fields = variables.next().getAsJsonObject();               //Get the each OBject one after the other
 
                    if(map.containsKey(redis_fields.get("name").getAsString())
                            && !map.get(redis_fields.get("name").getAsString())
