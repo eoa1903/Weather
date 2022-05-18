@@ -34,26 +34,26 @@ public class WeatherApplication {
 		PooledConnectionProvider provider = new PooledConnectionProvider(config);
 		UnifiedJedis client = new UnifiedJedis(provider);
 
-		int i=100001;
-		while(i<1000000) {
+		int i=0;
+		while(i<1000) {
 			JsonObject obj = new JsonObject();
 			obj.addProperty("id", i);
-			/*if( i%2 == 0){
+			//if( i%2 == 0){
 				obj.addProperty("policy_time_name", "secs");
-				obj.addProperty("policy_time_value", 30);
-			}
-			if( i%2 == 1){
-				obj.addProperty("policy_time_name", "mins");
-				obj.addProperty("policy_time_value", 5);
-			}*/
-			if( i%2==0){
-				obj.addProperty("policy_time_name", "hours");
 				obj.addProperty("policy_time_value", 1);
-			}
-			if( i%2==1){
-				obj.addProperty("policy_time_name", "days");
-				obj.addProperty("policy_time_value", 2);
-			}
+			//}
+//			if( i%2 == 1){
+//				obj.addProperty("policy_time_name", "mins");
+//				obj.addProperty("policy_time_value", 5);
+//			}
+//			if( i%2==0){
+//				obj.addProperty("policy_time_name", "hours");
+//				obj.addProperty("policy_time_value", 1);
+//			}
+//			if( i%2==1){
+//				obj.addProperty("policy_time_name", "days");
+//				obj.addProperty("policy_time_value", 2);
+//			}
 
 			JsonArray jsonArray = new JsonArray();
 			JsonObject obj_sch0 = new JsonObject();
@@ -74,7 +74,7 @@ public class WeatherApplication {
 			jsonArray.add(obj_sch3);
 			JsonObject obj_sch4 = new JsonObject();
 			obj_sch4.addProperty("name","timestamp");
-			obj_sch4.addProperty("type", "String");
+			obj_sch4.addProperty("type", "Long");
 			jsonArray.add(obj_sch4);
 			obj.add("schema",jsonArray);
 

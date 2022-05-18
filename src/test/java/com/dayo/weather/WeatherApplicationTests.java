@@ -35,6 +35,8 @@ class WeatherApplicationTests {
 	@Autowired
 	private Consumer consumer;
 	ProducerRecord<String, Weather> producerRecord;
+	ProducerRecord<String,Weather> minR;
+	ProducerRecord<String,Weather> hourR;
 
 	@Test
 	public void contextLoads() throws InterruptedException {
@@ -42,9 +44,15 @@ class WeatherApplicationTests {
 
 		while (true) {
 			producerRecord = new ProducerRecord<>("weather-data", 0,"1", new Weather(i, "Rainfall", 234.56, 45.67, Instant.now().atZone(zoneId).toInstant().toEpochMilli()));
-			ListenableFuture<SendResult<String, Weather>> future = kafkaTemplate.send(producerRecord);
+			ListenableFuture<SendResult<String, Weather>> future1 = kafkaTemplate.send(producerRecord);
 			i++;
-			future.addCallback(new ListenableFutureCallback<SendResult<String, Weather>>() {
+			//minR = new ProducerRecord<>("weather-data", 0,"2", new Weather(i, "Rainfall", 234.56, 45.67, Instant.now().atZone(zoneId).toInstant().toEpochMilli()));
+			//kafkaTemplate.send(minR);
+			//i++;
+			//hourR = new ProducerRecord<>("weather-data", 0,"3", new Weather(i, "Rainfall", 234.56, 45.67, Instant.now().atZone(zoneId).toInstant().toEpochMilli()));
+			//kafkaTemplate.send(hourR);
+			//i++;
+			future1.addCallback(new ListenableFutureCallback<SendResult<String, Weather>>() {
 
 				@Override
 				public void onSuccess(SendResult<String, Weather> result) {

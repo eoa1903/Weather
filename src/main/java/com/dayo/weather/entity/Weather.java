@@ -14,18 +14,17 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 @Data
-@JsonIgnoreProperties(ignoreUnknown = true)
-@JsonRootName("weather")
-public class Weather implements Serializable {
+//@JsonIgnoreProperties(ignoreUnknown = true)
+//@JsonRootName("weather")
+public class Weather {//implements Serializable {
 
     public Integer id;
     private String phyQt;
     private Double lon;
     private Double lat;
-    private long zonedDateTime;
+    private Long zonedDateTime;
 
-    @JsonCreator
-    public Weather(@JsonProperty("id") int id, @JsonProperty("phyQt")String phyQt, @JsonProperty("lat")double lat, @JsonProperty("lon")double lon, @JsonProperty("zonedDateTime")long zonedDateTime){
+    public Weather( int id,String phyQt, double lat,double lon, long zonedDateTime){
         this.id = id;
         this.phyQt=phyQt;
         this.lat=lat;
@@ -51,7 +50,7 @@ public class Weather implements Serializable {
         return lat;
     }
 
-    public long getZonedDateTime(){
+    public Long getZonedDateTime(){
         return zonedDateTime;//ZonedDateTime.ofInstant(Instant.ofEpochSecond(zonedDateTime.toEpochSecond()), ZoneId.of("UTC"));
     }
 
