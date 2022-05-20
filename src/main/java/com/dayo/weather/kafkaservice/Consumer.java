@@ -1,12 +1,9 @@
 package com.dayo.weather.kafkaservice;
 import com.dayo.weather.entity.Weather;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.google.gson.*;
 import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.tomcat.util.json.JSONParser;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -40,11 +37,17 @@ public class Consumer {
     private Object obj;
     private Iterator<JsonElement> variables;
 
+
+    /**
+     *
+     * @param records
+     * @throws JSONException
+     */
    @KafkaListener( topics = "weather-data", concurrency = "1",groupId = "weatherSubscriber")
-    public void listener(ConsumerRecords<String, Weather>records) throws JSONException {                                //polling maximum of 1000 records every 5sec
+    public void listener(ConsumerRecords<String, Weather>records) throws JSONException {                                            //polling maximum of 1000 records every 5sec
         for (ConsumerRecord<String,Weather> m:records) {
-            json_wea= new JSONObject(m.value().toString());
-            set = json_wea.keys();                                                                              //JsonParser.parseString(m.value().toString()).getAsJsonObject().keySet().iterator();                                //id,phyQt,lat,lon,timestamp:5
+            json_wea = new JSONObject(m.value().toString());
+            set = json_wea.keys();                                                                                                      //JsonParser.parseString(m.value().toString()).getAsJsonObject().keySet().iterator();                                //id,phyQt,lat,lon,timestamp:5
             map = new HashMap<>();
 
           while(set.hasNext()) {
@@ -58,12 +61,16 @@ public class Consumer {
            }else {
                log.info("FAILED -> key {} previous time stamp{}, Weather time -> {}", m.key(),time_holder_sec.get("id_"+m.key()),m.value().getTimestamp());
                m = null;
-//               System.gc();
-//               System.runFinalization();
            }
        }
     }
 
+    /**
+     *
+     * @param data Weather Object
+     * @param map HashMap containing keys, and datatypes
+     * @return true or false
+     */
    public boolean isValid(ConsumerRecord<String,Weather> data, Map<String,Object>map ){
 
        try {
@@ -82,7 +89,7 @@ public class Consumer {
                switch (policy_type) {
                    case "secs":
                        if (time_holder_sec.containsKey(feed_id)) {
-                           if ((timestamp - time_holder_sec.get(feed_id)) >= (policy_time * 1000) ||(timestamp - time_holder_sec.get(feed_id)) <=0 ) {
+                           if ((timestamp - time_holder_sec.get(feed_id)) > (policy_time * 1000) ||(timestamp - time_holder_sec.get(feed_id)) <0 ) {
                                time_holder_sec.put(feed_id, timestamp);
                            }
                            else {
@@ -97,7 +104,7 @@ public class Consumer {
                        break;
                    case "days":
                        if (time_holder_day.containsKey(feed_id)) {
-                           if ((timestamp - time_holder_day.get(feed_id)) >= (policy_time * 1000 * 24 * 60 * 60) || (timestamp - time_holder_day.get(feed_id)) <=0)
+                           if ((timestamp - time_holder_day.get(feed_id)) > (policy_time * 1000 * 24 * 60 * 60) || (timestamp - time_holder_day.get(feed_id)) <0)
                                time_holder_day.put(feed_id, timestamp);
                            else
                                return false;
@@ -107,7 +114,7 @@ public class Consumer {
                        break;
                    case "mins":
                        if (time_holder_min.containsKey(feed_id)) {
-                           if ((timestamp - time_holder_min.get(feed_id)) >= (policy_time * 1000 * 60) || (timestamp - time_holder_min.get(feed_id)) <=0)
+                           if ((timestamp - time_holder_min.get(feed_id)) > (policy_time * 1000 * 60) || (timestamp - time_holder_min.get(feed_id)) <0)
                                time_holder_min.put(feed_id, timestamp);
                            else
                                return false;
@@ -117,7 +124,7 @@ public class Consumer {
                        break;
                    case "hours":
                        if (time_holder_hour.containsKey(feed_id)) {
-                           if ((timestamp - time_holder_hour.get(feed_id)) >= (policy_time * 1000 * 60 * 60) || (timestamp - time_holder_hour.get(feed_id))<=0)
+                           if ((timestamp - time_holder_hour.get(feed_id)) > (policy_time * 1000 * 60 * 60) || (timestamp - time_holder_hour.get(feed_id))<0)
                                time_holder_hour.put(feed_id, timestamp);
                            else
                                return false;

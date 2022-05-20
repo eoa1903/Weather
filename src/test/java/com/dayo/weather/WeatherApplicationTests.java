@@ -1,15 +1,12 @@
 package com.dayo.weather;
 
 import com.dayo.weather.entity.Weather;
-import com.dayo.weather.kafkaservice.Consumer;
 import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.SendResult;
-import org.springframework.util.concurrent.ListenableFuture;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -21,9 +18,7 @@ class WeatherApplicationTests {
 
 	@Autowired
 	private KafkaTemplate<String, Weather> kafkaTemplate;
-	//public CountDownLatch countDownLatch = new CountDownLatch(1);
-	//@Autowired
-	private Consumer consumer;
+
 	ProducerRecord<String, Weather> producerRecord;
 	ProducerRecord<String,Weather> minR;
 	ProducerRecord<String,Weather> hourR;
@@ -34,7 +29,6 @@ class WeatherApplicationTests {
 
 		while (true) {
 			producerRecord = new ProducerRecord<>("weather-data", 0,"1", new Weather(i, "Rainfall", 234.56, 45.67, Instant.now().atZone(zoneId).toInstant().toEpochMilli()));
-			//ListenableFuture<SendResult<String, Weather>> future1 = kafkaTemplate.send(producerRecord);
 			i++;
 			minR = new ProducerRecord<>("weather-data", 0,"2", new Weather(i, "Rainfall", 2167.66, 21.63, Instant.now().atZone(zoneId).toInstant().toEpochMilli()));
 			i++;
@@ -42,7 +36,6 @@ class WeatherApplicationTests {
 			kafkaTemplate.send(producerRecord);
 			kafkaTemplate.send(hourR);
 			kafkaTemplate.send(minR);
-
 			i++;
 
 		}
