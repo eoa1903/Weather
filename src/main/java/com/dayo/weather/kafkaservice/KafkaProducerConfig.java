@@ -1,7 +1,6 @@
 package com.dayo.weather.kafkaservice;
 
 import com.dayo.weather.entity.Weather;
-import com.dayo.weather.serializers.CustomSerializer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -32,7 +32,7 @@ public class KafkaConsumerConfig {
         props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, 125000);
         props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, 1000);
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG,true);
-        props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG,10);
+        props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG,1000);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         props.put(ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, JsonDeserializer.class);
@@ -52,7 +52,7 @@ public class KafkaConsumerConfig {
         ConcurrentKafkaListenerContainerFactory<String, Weather> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
-        factory.getContainerProperties().setPollTimeout(2000); //2.5 secs
+        factory.getContainerProperties().setPollTimeout(10000); //
         factory.setBatchListener(true);
         return factory;
     }

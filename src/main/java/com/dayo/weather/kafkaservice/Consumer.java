@@ -11,8 +11,6 @@ import org.springframework.stereotype.Service;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.UnifiedJedis;
 import redis.clients.jedis.providers.PooledConnectionProvider;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.*;
 
 @Service
@@ -23,10 +21,9 @@ public class Consumer {
     private HostAndPort config = new HostAndPort("192.168.2.47", 6379);
     private PooledConnectionProvider provider = new PooledConnectionProvider(config);
     private UnifiedJedis client = new UnifiedJedis(provider);
-    private ZoneId zoneId= ZoneId.of("UTC");
-    private ZonedDateTime zonedDateTime;
     private long timestamp;
     private String policy_type;
+    private Object value;
     private long policy_time;
     private Map<String,Object> map;
     private Map<String,Long> time_holder_sec = new HashMap<>();
@@ -40,37 +37,39 @@ public class Consumer {
     private Iterator<JsonElement> variables;
 
    @KafkaListener( topics = "weather-data", concurrency = "1",groupId = "weatherSubscriber")
-    public void listener(ConsumerRecords<String, Weather>records) throws JSONException, JsonProcessingException {          //polling maximum of 1000 records every 5sec
+    public void listener(ConsumerRecords<String, Weather>records) throws JSONException {                                //polling maximum of 1000 records every 5sec
         for (ConsumerRecord<String,Weather> m:records) {
-            set = m.value().json().keys();                                                   //id,phyQt,lat,lon,timestamp:5
+            set = m.value().json().keys();                                                                              //JsonParser.parseString(m.value().toString()).getAsJsonObject().keySet().iterator();                                //id,phyQt,lat,lon,timestamp:5
             map = new HashMap<>();
+            log.info("type ->{}, timetsamp {}, value {}",m.timestampType().name,m.timestamp(), m.value().getZonedDateTime());
+            //log.info("data -> {} json -> {}", m.value(),m.value().json().toString());
+            //log.info("Json ->{}", JsonParser.parseString(m.value().toString()).getAsJsonObject());
 
           //Get All keys and DataTypes of the json obj
           while(set.hasNext()) {
-              Object value = set.next();
+              value = set.next();
               map.put(value.toString(), m.value().json().get(value.toString()).getClass().getSimpleName());
           }
 
-           if(isValid(m,map)) {
-               log.info("SUCCESSFUL -> key {} {}, Weather time -> {}, Key -> {}", m.key(), time_holder_sec.get("id_1"), m.value().getZonedDateTime());
-
-           }else {
-               log.info("FAILED -> key {} previous time stamp{}, Weather time -> {}, consumer Time -> {}", m.key(),time_holder_sec.get("id_1"),m.value().getZonedDateTime());
-               m = null;
-           }
-
+//           if(isValid(m,map)) {
+//               log.info("SUCCESSFUL -> key {} previous timestamp {}, Weather time -> {}", m.key(), time_holder_sec.get("id_"+m.key()), m.value().getZonedDateTime());
+//
+//           }else {
+//               log.info("FAILED -> key {} previous time stamp{}, Weather time -> {}", m.key(),time_holder_sec.get("id_"+m.key()),m.value().getZonedDateTime());
+//               m = null;
+////               System.gc();
+////               System.runFinalization();
+//           }
        }
     }
 
    public boolean isValid(ConsumerRecord<String,Weather> data, Map<String,Object>map ){
+
        try {
-           zonedDateTime = ZonedDateTime.now().withZoneSameInstant(zoneId);
            feed_id = "id_" + data.key();
            obj = client.jsonGet(feed_id);
 
            //Step 1. Check if the keys exists
-
-           log.info("data {}", obj);
            if (obj.toString() != null) {
 
                json = JsonParser.parseString(obj.toString()).getAsJsonObject();
@@ -82,7 +81,7 @@ public class Consumer {
                switch (policy_type) {
                    case "secs":
                        if (time_holder_sec.containsKey(feed_id)) {
-                           if ((timestamp - time_holder_sec.get(feed_id)) >= (policy_time * 1000) ||(timestamp - time_holder_sec.get(feed_id)) ==0 ) {
+                           if ((timestamp - time_holder_sec.get(feed_id)) >= (policy_time * 1000) ||(timestamp - time_holder_sec.get(feed_id)) <=0 ) {
                                time_holder_sec.put(feed_id, timestamp);
                            }
                            else {
@@ -97,7 +96,7 @@ public class Consumer {
                        break;
                    case "days":
                        if (time_holder_day.containsKey(feed_id)) {
-                           if ((timestamp - time_holder_day.get(feed_id)) >= (policy_time * 1000 * 24 * 60 * 60) || (timestamp - time_holder_day.get(feed_id)) ==0)
+                           if ((timestamp - time_holder_day.get(feed_id)) >= (policy_time * 1000 * 24 * 60 * 60) || (timestamp - time_holder_day.get(feed_id)) <=0)
                                time_holder_day.put(feed_id, timestamp);
                            else
                                return false;
@@ -107,7 +106,7 @@ public class Consumer {
                        break;
                    case "mins":
                        if (time_holder_min.containsKey(feed_id)) {
-                           if ((timestamp - time_holder_min.get(feed_id)) >= (policy_time * 1000 * 60) || (timestamp - time_holder_min.get(feed_id)) ==0)
+                           if ((timestamp - time_holder_min.get(feed_id)) >= (policy_time * 1000 * 60) || (timestamp - time_holder_min.get(feed_id)) <=0)
                                time_holder_min.put(feed_id, timestamp);
                            else
                                return false;
@@ -117,7 +116,7 @@ public class Consumer {
                        break;
                    case "hours":
                        if (time_holder_hour.containsKey(feed_id)) {
-                           if ((timestamp - time_holder_hour.get(feed_id)) >= (policy_time * 1000 * 24 * 60 * 60) || (timestamp - time_holder_hour.get(feed_id))==0)
+                           if ((timestamp - time_holder_hour.get(feed_id)) >= (policy_time * 1000 * 24 * 60 * 60) || (timestamp - time_holder_hour.get(feed_id))<=0)
                                time_holder_hour.put(feed_id, timestamp);
                            else
                                return false;
@@ -126,6 +125,7 @@ public class Consumer {
                        }
                        break;
                }
+
                // Step 3. Check the number of  field matches with Redis Schema
                if (map.size() == json.getAsJsonArray("schema").size()) {
                    variables = json.getAsJsonArray("schema").iterator();
@@ -138,7 +138,7 @@ public class Consumer {
                        if (map.containsKey(redis_fields.get("name").getAsString())
                                && !map.get(redis_fields.get("name").getAsString())
                                .equals(redis_fields.get("type").getAsString())) {
-                           log.info("Failed: redis key -> {} ,  weather key -> {}, type Redis -> {} , weather type -> {}", redis_fields.get("name").getAsString(), map.containsKey(redis_fields.get("name").getAsString()), redis_fields.get("type").getAsString(), map.get(redis_fields.get("name").getAsString()));
+                           //log.info("Failed: redis key -> {} ,  weather key -> {}, type Redis -> {} , weather type -> {}", redis_fields.get("name").getAsString(), map.containsKey(redis_fields.get("name").getAsString()), redis_fields.get("type").getAsString(), map.get(redis_fields.get("name").getAsString()));
                            return false;
                        }
                    }
