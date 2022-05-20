@@ -41,7 +41,7 @@ public class Consumer {
         for (ConsumerRecord<String,Weather> m:records) {
             set = m.value().json().keys();                                                                              //JsonParser.parseString(m.value().toString()).getAsJsonObject().keySet().iterator();                                //id,phyQt,lat,lon,timestamp:5
             map = new HashMap<>();
-            log.info("type ->{}, timetsamp {}, value {}",m.timestampType().name,m.timestamp(), m.value().getZonedDateTime());
+            //log.info("type ->{}, timetsamp {}, value {}",m.timestampType().name,m.timestamp(), m.value().getZonedDateTime());
             //log.info("data -> {} json -> {}", m.value(),m.value().json().toString());
             //log.info("Json ->{}", JsonParser.parseString(m.value().toString()).getAsJsonObject());
 

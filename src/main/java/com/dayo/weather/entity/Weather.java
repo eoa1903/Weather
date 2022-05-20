@@ -1,35 +1,43 @@
 package com.dayo.weather.entity;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
+
 
 @Data
-//@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 //@JsonRootName("weather")
-public class Weather {
+public class Weather implements Serializable {
 
     public Integer id;
     private String phyQt;
     private Double lon;
     private Double lat;
-    private Long timestamp;
+    public Long zoneDateTime;
 
-    public Weather( int id,String phyQt, double lat,double lon, long zonedDateTime){
+    @JsonCreator
+    public Weather(@JsonProperty("id")int id, @JsonProperty("phyQt")String phyQt, @JsonProperty("lat")double lat, @JsonProperty("lon")double lon, @JsonProperty("zonedDateTime")long zonedDateTime){
         this.id = id;
         this.phyQt=phyQt;
         this.lat=lat;
         this.lon=lon;
-        this.timestamp = zonedDateTime;
+        this.zoneDateTime = zonedDateTime;
+       // System.out.println(this.timestamp);
     }
 
     public Weather(){}
 
 
-    public String toString(){
-       return "{\"id\":"+this.id+",\"phyQt\":"+this.phyQt+",\"lat\":"+this.lat+",\"lon\":"+this.lon+",\"timestamp\":"+this.timestamp+"}";
-    }
+//    public String toString(){
+//       return "{\"id\":"+this.id+",\"phyQt\":"+this.phyQt+",\"lat\":"+this.lat+",\"lon\":"+this.lon+",\"timestamp\":"+this.timestamp+"}";
+//    }
+
     public JSONObject json() throws JSONException {
         JSONObject obj = new JSONObject();
 
@@ -37,7 +45,7 @@ public class Weather {
         obj.put("lat", this.lat);
         obj.put("lon", this.lon);
         obj.put("phyQt",this.phyQt);
-        obj.put("timestamp", this.timestamp);
+        obj.put("timestamp", this.zoneDateTime);
         return obj;
     }
 }

@@ -36,12 +36,13 @@ class WeatherApplicationTests {
 			producerRecord = new ProducerRecord<>("weather-data", 0,"1", new Weather(i, "Rainfall", 234.56, 45.67, Instant.now().atZone(zoneId).toInstant().toEpochMilli()));
 			//ListenableFuture<SendResult<String, Weather>> future1 = kafkaTemplate.send(producerRecord);
 			i++;
-			minR = new ProducerRecord<>("weather-data", 0,"2", new Weather(i, "Rainfall", 2167.66, 21.63, Instant.now().atZone(zoneId).toInstant().toEpochMilli()));
-			i++;
-			hourR = new ProducerRecord<>("weather-data", 0,"3", new Weather(i, "Rainfall", 312.86, 09.71, Instant.now().atZone(zoneId).toInstant().toEpochMilli()));
+			log.info("data sent -> {}", producerRecord.value());
+			//minR = new ProducerRecord<>("weather-data", 0,"2", new Weather(i, "Rainfall", 2167.66, 21.63, Instant.now().atZone(zoneId).toInstant().toEpochMilli()));
+			//i++;
+			//hourR = new ProducerRecord<>("weather-data", 0,"3", new Weather(i, "Rainfall", 312.86, 09.71, Instant.now().atZone(zoneId).toInstant().toEpochMilli()));
 			ListenableFuture<SendResult<String, Weather>> future1 = kafkaTemplate.send(producerRecord);
-			ListenableFuture<SendResult<String, Weather>> future3=kafkaTemplate.send(hourR);
-			ListenableFuture<SendResult<String, Weather>> future2=kafkaTemplate.send(minR);
+			//ListenableFuture<SendResult<String, Weather>> future3=kafkaTemplate.send(hourR);
+			//ListenableFuture<SendResult<String, Weather>> future2=kafkaTemplate.send(minR);
 
 			i++;
 
