@@ -40,19 +40,12 @@ public class KafkaConsumerConfig {
         this.consumer = new KafkaConsumer<>(consumerConfig());
         this.consumer.subscribe(Arrays.asList("weather-data"));
     }
-
-    public KafkaConsumerConfig(String topic){
-        this.consumer = new KafkaConsumer<>(consumerConfig());
-        this.consumer.subscribe(Arrays.asList(topic));
-    }
-
     public void init(int numberOfThreads) {
 
         executor = new ThreadPoolExecutor(numberOfThreads, numberOfThreads, 0L, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<Runnable>(1000), new ThreadPoolExecutor.CallerRunsPolicy());
 
         while (true) {
-            //System.out.println("Here");
             ConsumerRecords<String, Weather> records = consumer.poll(Duration.ofMillis(100));
             for (final ConsumerRecord <String,Weather> record : records) {
                 executor.submit(new ConsumerThreadHandler(record));

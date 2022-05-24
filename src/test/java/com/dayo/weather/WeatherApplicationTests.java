@@ -30,13 +30,13 @@ class WeatherApplicationTests {
 	public void contextLoads() throws InterruptedException {
 		//Thread t1 = new Thread(producer);
 
-		KafkaConsumerConfig consumers = new KafkaConsumerConfig ("weather-data");
+		//KafkaConsumerConfig consumers = new KafkaConsumerConfig ("weather-data");
 		try {
 			//consumers.init(2);
 			//t1.start();
 
 		}catch (Exception exp) {
-			consumers.shutdown();
+			//consumers.shutdown();
 		}
 
 //		//consumers.execute(10);

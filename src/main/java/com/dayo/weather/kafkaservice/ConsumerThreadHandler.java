@@ -35,13 +35,9 @@ public class ConsumerThreadHandler implements Runnable{
 
     private long timestamp;
     private String policy_type;
-    private Object value;
     private long policy_time;
-    private Map<String,Object> map;
-    private Iterator<?> set;
     private String feed_id;
     private JsonObject json,redis_fields;
-    private JSONObject json_wea;
     private Object obj;
     private Iterator<JsonElement> variables;
 
@@ -61,6 +57,10 @@ public class ConsumerThreadHandler implements Runnable{
         }
     }
 
+    /**
+     * Policy Validator
+     * @return true or false
+     */
     public boolean isPolicyTimeValid(){
         //readLock.lock();
         try{
@@ -142,6 +142,10 @@ public class ConsumerThreadHandler implements Runnable{
         return true;
     }
 
+    /**
+     * Schema Validator
+     * @return true or false
+     */
     public boolean isSchemaValid(){
         try{
             variables = json.getAsJsonArray("schema").iterator();
@@ -153,9 +157,7 @@ public class ConsumerThreadHandler implements Runnable{
                 redis_fields = variables.next().getAsJsonObject();
                 if (Arrays.stream(fields).allMatch(s -> s.equals(redis_fields.get("name"))))
                     return false;
-
             }
-           // for(Field field:)
         }catch (Exception e){
 
         }
