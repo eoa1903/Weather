@@ -34,25 +34,25 @@ public class WeatherApplication {
 		PooledConnectionProvider provider = new PooledConnectionProvider(config);
 		UnifiedJedis client = new UnifiedJedis(provider);
 
-		int i=0;
-		while(i<1000) {
+		int i=1;
+		while(i<=6) {
 			JsonObject obj = new JsonObject();
 			obj.addProperty("id", i);
 			//if( i%2 == 0){
 				obj.addProperty("policy_time_name", "secs");
 				obj.addProperty("policy_time_value", 1);
 			//}
-//			if( i%2 == 1){
+//			if( i == 4){
 //				obj.addProperty("policy_time_name", "mins");
-//				obj.addProperty("policy_time_value", 5);
+//				obj.addProperty("policy_time_value", 1);
 //			}
-//			if( i%2==0){
+//			if( i == 5){
 //				obj.addProperty("policy_time_name", "hours");
 //				obj.addProperty("policy_time_value", 1);
 //			}
-//			if( i%2==1){
+//			if( i == 6){
 //				obj.addProperty("policy_time_name", "days");
-//				obj.addProperty("policy_time_value", 2);
+//				obj.addProperty("policy_time_value", 1);
 //			}
 
 			JsonArray jsonArray = new JsonArray();

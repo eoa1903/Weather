@@ -26,10 +26,7 @@ public class Consumer {
     private Object value;
     private long policy_time;
     private Map<String,Object> map;
-    private Map<String,Long> time_holder_sec = new HashMap<>();
-    private Map<String,Long> time_holder_min = new HashMap<>();
-    private Map<String,Long> time_holder_hour = new HashMap<>();
-    private Map<String,Long> time_holder_day = new HashMap<>();
+    private Map<String,Long> time_holder = new HashMap<>();
     private Iterator<?> set;
     private String feed_id;
     private JsonObject json,redis_fields;
@@ -45,7 +42,8 @@ public class Consumer {
      */
    @KafkaListener( topics = "weather-data", concurrency = "1",groupId = "weatherSubscriber")
     public void listener(ConsumerRecords<String, Weather>records) throws JSONException {                                            //polling maximum of 1000 records every 5sec
-        for (ConsumerRecord<String,Weather> m:records) {
+
+       for (ConsumerRecord<String,Weather> m:records) {
             json_wea = new JSONObject(m.value().toString());
             set = json_wea.keys();                                                                                                      //JsonParser.parseString(m.value().toString()).getAsJsonObject().keySet().iterator();                                //id,phyQt,lat,lon,timestamp:5
             map = new HashMap<>();
@@ -56,10 +54,10 @@ public class Consumer {
           }
 
            if(isValid(m,map)) {
-               log.info("SUCCESSFUL -> key {} previous timestamp {}, Weather time -> {}", m.key(), time_holder_sec.get("id_"+m.key()), m.value().getTimestamp());
+               log.info("SUCCESSFUL -> key {} previous timestamp {}, Weather time -> {}", m.key(), time_holder.get("id_"+m.key()), m.value().getTimestamp());
 
            }else {
-               log.info("FAILED -> key {} previous time stamp{}, Weather time -> {}", m.key(),time_holder_sec.get("id_"+m.key()),m.value().getTimestamp());
+               log.info("FAILED -> key {} previous time stamp{}, Weather time -> {}", m.key(),time_holder.get("id_"+m.key()),m.value().getTimestamp());
                m = null;
            }
        }
@@ -71,7 +69,7 @@ public class Consumer {
      * @param map HashMap containing keys, and datatypes
      * @return true or false
      */
-   public boolean isValid(ConsumerRecord<String,Weather> data, Map<String,Object>map ){
+    public boolean isValid(ConsumerRecord<String,Weather> data, Map<String,Object>map ){
 
        try {
            feed_id = "id_" + data.key();
@@ -88,59 +86,57 @@ public class Consumer {
                //Step 2. Check if the Policy time matches.
                switch (policy_type) {
                    case "secs":
-                       if (time_holder_sec.containsKey(feed_id)) {
-                           if ((timestamp - time_holder_sec.get(feed_id)) > (policy_time * 1000) ||(timestamp - time_holder_sec.get(feed_id)) <0 ) {
-                               time_holder_sec.put(feed_id, timestamp);
+                       if (time_holder.containsKey(feed_id)) {
+                           if ((timestamp - time_holder.get(feed_id)) > (policy_time * 1000) ||(timestamp - time_holder.get(feed_id)) <0 ) {
+                               time_holder.put(feed_id, timestamp);
                            }
                            else {
-                               log.info(" -> {}, feed_id {}, difference {}", timestamp, feed_id, timestamp - time_holder_sec.get(feed_id));
+                               log.info(" -> {}, feed_id {}, difference {}", timestamp, feed_id, timestamp - time_holder.get(feed_id));
                                return false;
                            }
                        } else {
-                           time_holder_sec.put(feed_id, timestamp);
+                           time_holder.put(feed_id, timestamp);
                            log.info("Succ -> {}, feed_id {}", timestamp, feed_id);
                        }
-
                        break;
                    case "days":
-                       if (time_holder_day.containsKey(feed_id)) {
-                           if ((timestamp - time_holder_day.get(feed_id)) > (policy_time * 1000 * 24 * 60 * 60) || (timestamp - time_holder_day.get(feed_id)) <0)
-                               time_holder_day.put(feed_id, timestamp);
+                       if (time_holder.containsKey(feed_id)) {
+                           if ((timestamp - time_holder.get(feed_id)) > (policy_time * 1000 * 24 * 60 * 60) || (timestamp - time_holder.get(feed_id)) <0)
+                               time_holder.put(feed_id, timestamp);
                            else
                                return false;
                        } else {
-                           time_holder_day.put(feed_id, timestamp);
+                           time_holder.put(feed_id, timestamp);
                        }
                        break;
                    case "mins":
-                       if (time_holder_min.containsKey(feed_id)) {
-                           if ((timestamp - time_holder_min.get(feed_id)) > (policy_time * 1000 * 60) || (timestamp - time_holder_min.get(feed_id)) <0)
-                               time_holder_min.put(feed_id, timestamp);
+                       if (time_holder.containsKey(feed_id)) {
+                           if ((timestamp - time_holder.get(feed_id)) > (policy_time * 1000 * 60) || (timestamp - time_holder.get(feed_id)) <0)
+                               time_holder.put(feed_id, timestamp);
                            else
                                return false;
                        } else {
-                           time_holder_min.put(feed_id, timestamp);
+                           time_holder.put(feed_id, timestamp);
                        }
                        break;
                    case "hours":
-                       if (time_holder_hour.containsKey(feed_id)) {
-                           if ((timestamp - time_holder_hour.get(feed_id)) > (policy_time * 1000 * 60 * 60) || (timestamp - time_holder_hour.get(feed_id))<0)
-                               time_holder_hour.put(feed_id, timestamp);
+                       if (time_holder.containsKey(feed_id)) {
+                           if ((timestamp - time_holder.get(feed_id)) > (policy_time * 1000 * 60 * 60) || (timestamp - time_holder.get(feed_id))<0)
+                               time_holder.put(feed_id, timestamp);
                            else
                                return false;
                        } else {
-                           time_holder_hour.put(feed_id, timestamp);
+                           time_holder.put(feed_id, timestamp);
                        }
                        break;
                }
 
                // Step 3. Check the number of  field matches with Redis Schema
-               if (map.size() == json.getAsJsonArray("schema").size()) {
                    variables = json.getAsJsonArray("schema").iterator();
 
                    // Step 4. Enter a while loop to verify the schemas
                    while (variables.hasNext()) {
-                       redis_fields = variables.next().getAsJsonObject();
+                       redis_fields = variables.next().getAsJsonObject();  //{""}
 
                        if (map.containsKey(redis_fields.get("name").getAsString())
                                && !map.get(redis_fields.get("name").getAsString())
@@ -149,12 +145,11 @@ public class Consumer {
                            return false;
                        }
                    }
-               } else
-                   return false;
            } else
                return false;
        }
-       catch (JSONException e){ System.err.println("Json Error "+ e.getMessage());}
+       catch (JSONException e){ System.err.println("Json Error "+ e.getMessage()); return false;}
+       catch (NullPointerException e){System.err.println("Error Message "+e.getMessage()); return false;}
        return true;
-   }
+    }
 }
