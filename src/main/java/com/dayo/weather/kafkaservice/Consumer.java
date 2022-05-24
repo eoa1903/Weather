@@ -13,7 +13,7 @@ import redis.clients.jedis.UnifiedJedis;
 import redis.clients.jedis.providers.PooledConnectionProvider;
 import java.util.*;
 
-@Service
+//@Service
 @Log4j2
 public class Consumer {
     //public CountDownLatch countDownLatch0 = new CountDownLatch(3);
@@ -40,7 +40,7 @@ public class Consumer {
      * @param records
      * @throws JSONException
      */
-   @KafkaListener( topics = "weather-data", concurrency = "1",groupId = "weatherSubscriber")
+   //@KafkaListener( topics = "weather-data", concurrency = "1",groupId = "weatherSubscriber")
     public void listener(ConsumerRecords<String, Weather>records) throws JSONException {                                            //polling maximum of 1000 records every 5sec
 
        for (ConsumerRecord<String,Weather> m:records) {

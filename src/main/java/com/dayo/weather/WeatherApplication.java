@@ -1,6 +1,7 @@
 package com.dayo.weather;
 
 import com.dayo.weather.entity.Weather;
+import com.dayo.weather.kafkaservice.KafkaConsumerConfig;
 import com.dayo.weather.kafkaservice.Producer;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -26,6 +27,7 @@ public class WeatherApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(WeatherApplication.class, args);
+
 	}
 
 	@GetMapping("/home")
@@ -85,8 +87,17 @@ public class WeatherApplication {
 		return "Hello Dayo!";
 	}
 
-	@PostMapping("/weatherinfo")
-	public Weather  sendMessage(@RequestBody Weather weather){
-		return null;
+	@GetMapping("/weatherinfo")
+	public void sendMessage(){
+		Thread t1 = new Thread(producer);
+		t1.start();
+
+		KafkaConsumerConfig consumers = new KafkaConsumerConfig();
+		try{
+			consumers.init(10);
+
+		}catch (Exception exp) {
+			consumers.shutdown();
+		}
 	}
 }
