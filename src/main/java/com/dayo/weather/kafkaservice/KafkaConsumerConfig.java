@@ -1,28 +1,17 @@
 package com.dayo.weather.kafkaservice;
 
 import com.dayo.weather.entity.Weather;
-import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.clients.consumer.*;
-import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.stereotype.Component;
-import redis.clients.jedis.HostAndPort;
-import redis.clients.jedis.UnifiedJedis;
-import redis.clients.jedis.providers.PooledConnectionProvider;
-
-import javax.annotation.PostConstruct;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @EnableKafka
 @Component
-@Log4j2
 public class KafkaConsumerConfig {
 
     private KafkaConsumer<String, Weather> consumer;
@@ -34,14 +23,12 @@ public class KafkaConsumerConfig {
     }
 
     public void init(int numberOfThreads) {
-
         executor = new ThreadPoolExecutor(numberOfThreads, 256, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>(), new ThreadPoolExecutor.CallerRunsPolicy());
 
         while (true) {
             ConsumerRecords<String, Weather> records = consumer.poll(Duration.ofMillis(100));
             executor.submit(new ConsumerThreadHandler(records));
-
         }
     }
 
