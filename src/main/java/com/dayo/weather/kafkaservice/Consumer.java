@@ -12,6 +12,7 @@ import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.UnifiedJedis;
 import redis.clients.jedis.providers.PooledConnectionProvider;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 //@Service
 @Log4j2
@@ -152,4 +153,20 @@ public class Consumer {
        catch (NullPointerException e){System.err.println("Error Message "+e.getMessage()); return false;}
        return true;
     }
+//    public void shutdown() {
+//        if (consumer != null) {
+//            consumer.close();
+//        }
+//        if (executor != null) {
+//            executor.shutdown();
+//        }
+//        try {
+//            if (!executor.awaitTermination(5000, TimeUnit.MILLISECONDS)) {
+//                System.out
+//                        .println("Timed out waiting for consumer threads to shut down, exiting uncleanly");
+//            }
+//        } catch (InterruptedException e) {
+//            System.out.println("Interrupted during shutdown, exiting uncleanly");
+//        }
+//    }
 }

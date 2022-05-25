@@ -22,10 +22,6 @@ class WeatherApplicationTests {
 	@Autowired
 	Producer producer;
 
-	ProducerRecord<String, Weather> producerRecord;
-	ProducerRecord<String,Weather> minR;
-	ProducerRecord<String,Weather> hourR;
-
 	@Test
 	public void contextLoads() throws InterruptedException {
 		Thread t1 = new Thread(producer);
@@ -36,7 +32,7 @@ class WeatherApplicationTests {
 			consumers.init(15);
 
 		}catch (Exception exp) {
-			consumers.shutdown();
+			//consumers.shutdown();
 		}
 
 

@@ -3,7 +3,6 @@ package com.dayo.weather.kafkaservice;
 import com.dayo.weather.entity.Weather;
 import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;

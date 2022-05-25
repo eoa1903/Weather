@@ -49,10 +49,10 @@ public class ConsumerThreadHandler implements Runnable{
             this.consumerRecord=consumerRecord;
 
             if(isPolicyTimeValid() && isSchemaValid()){
-                log.info("SUCCESSFUL -> key {} previous timestamp {}, Weather time -> {}", consumerRecord.key(), time_holder.get("id_"+consumerRecord.key()), consumerRecord.value().getTimestamp());
+                //log.info("SUCCESSFUL -> key {} previous timestamp {}, Weather time -> {}", consumerRecord.key(), time_holder.get("id_"+consumerRecord.key()), consumerRecord.value().getTimestamp());
             }
             else {
-                log.info("Not valid Data key {} previous timestamp {}, Weather time -> {}", consumerRecord.key(), time_holder.get("id_"+consumerRecord.key()), consumerRecord.value().getTimestamp());
+                //log.info("Not valid Data key {} previous timestamp {}, Weather time -> {}", consumerRecord.key(), time_holder.get("id_"+consumerRecord.key()), consumerRecord.value().getTimestamp());
             }
         }
     }
@@ -62,6 +62,7 @@ public class ConsumerThreadHandler implements Runnable{
      * @return true or false
      */
     public boolean isPolicyTimeValid(){
+
         try{
             //Get Redis Json
             feed_id = "id_" + consumerRecord.key();
@@ -76,16 +77,18 @@ public class ConsumerThreadHandler implements Runnable{
             switch (policy_type) {
                 case "secs":
                     if(getTime(feed_id)!=0){
-                        if(timestamp-getTime(feed_id) >(policy_time * 1000) || (timestamp -getTime(feed_id)) <0)
-                            updateTime(feed_id,timestamp);
+                        if(timestamp-getTime(feed_id) >(policy_time * 1000) || (timestamp -getTime(feed_id)) <0) {
+                            log.info("Updated -> {}, feed_id {},difference {}", timestamp, feed_id,timestamp - time_holder.get(feed_id));
+                            updateTime(feed_id, timestamp);
+                        }
                         else {
-                            //log.info("Failed -> {}, feed_id {}, difference {}", timestamp, feed_id, timestamp - time_holder.get(feed_id));
+                            log.info("Failed -> {}, feed_id {}, difference {}", timestamp, feed_id, timestamp - time_holder.get(feed_id));
                             return false;
                         }
                     }
                     else{
                         updateTime(feed_id,timestamp);
-                        //log.info("Succ -> {}, feed_id {}", timestamp, feed_id);
+                        log.info("Succ -> {}, feed_id {}", timestamp, feed_id);
                     }
                     break;
 
@@ -158,7 +161,7 @@ public class ConsumerThreadHandler implements Runnable{
     }
 
     /**
-     *
+     * Write Lock
      * @param key
      * @param timestamp
      */
@@ -173,7 +176,7 @@ public class ConsumerThreadHandler implements Runnable{
     }
 
     /**
-     *
+     * Read Lock
      * @param key Feed Id
      * @return timestamp
      */

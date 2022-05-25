@@ -59,21 +59,4 @@ public class KafkaConsumerConfig {
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
         return props;
     }
-
-    public void shutdown() {
-        if (consumer != null) {
-            consumer.close();
-        }
-        if (executor != null) {
-            executor.shutdown();
-        }
-        try {
-            if (!executor.awaitTermination(5000, TimeUnit.MILLISECONDS)) {
-                System.out
-                        .println("Timed out waiting for consumer threads to shut down, exiting uncleanly");
-            }
-        } catch (InterruptedException e) {
-            System.out.println("Interrupted during shutdown, exiting uncleanly");
-        }
-    }
 }
