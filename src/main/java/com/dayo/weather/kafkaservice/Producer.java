@@ -27,6 +27,12 @@ public class Producer implements Runnable{
             i++;
             sendToTopic(new Weather(i, "Rainfall", 234.56, 45.67, Instant.now().atZone(zoneId).toInstant().toEpochMilli()), "weather-data", 0,"3");
             i++;
+            sendToTopic(new Weather(i, "Rainfall", 234.56, 45.67, Instant.now().atZone(zoneId).toInstant().toEpochMilli()), "weather-data", 0,"4");
+            i++;
+            sendToTopic(new Weather(i, "Rainfall", 234.56, 45.67, Instant.now().atZone(zoneId).toInstant().toEpochMilli()), "weather-data", 0,"5");
+            i++;
+            sendToTopic(new Weather(i, "Rainfall", 234.56, 45.67, Instant.now().atZone(zoneId).toInstant().toEpochMilli()), "weather-data", 0,"6");
+            i++;
         }
     }
 

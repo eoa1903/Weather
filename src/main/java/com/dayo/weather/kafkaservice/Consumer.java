@@ -6,19 +6,13 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.stereotype.Service;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.UnifiedJedis;
 import redis.clients.jedis.providers.PooledConnectionProvider;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
-//@Service
 @Log4j2
 public class Consumer {
-    //public CountDownLatch countDownLatch0 = new CountDownLatch(3);
-
     private HostAndPort config = new HostAndPort("192.168.2.47", 6379);
     private PooledConnectionProvider provider = new PooledConnectionProvider(config);
     private UnifiedJedis client = new UnifiedJedis(provider);

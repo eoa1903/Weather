@@ -4,7 +4,6 @@ import com.dayo.weather.entity.Weather;
 import com.dayo.weather.kafkaservice.KafkaConsumerConfig;
 import com.dayo.weather.kafkaservice.Producer;
 import lombok.extern.log4j.Log4j2;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

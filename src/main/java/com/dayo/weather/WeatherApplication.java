@@ -1,7 +1,5 @@
 package com.dayo.weather;
 
-import com.dayo.weather.entity.Weather;
-import com.dayo.weather.kafkaservice.KafkaConsumerConfig;
 import com.dayo.weather.kafkaservice.Producer;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -9,8 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.UnifiedJedis;
@@ -36,26 +32,26 @@ public class WeatherApplication {
 		PooledConnectionProvider provider = new PooledConnectionProvider(config);
 		UnifiedJedis client = new UnifiedJedis(provider);
 
-		int i=1;
+		int i=4;
 		while(i<=6) {
 			JsonObject obj = new JsonObject();
 			obj.addProperty("id", i);
-			//if( i%2 == 0){
-				obj.addProperty("policy_time_name", "secs");
+//			//if( i%2 == 0){
+//				obj.addProperty("policy_time_name", "secs");
+//				obj.addProperty("policy_time_value", 1);
+//			//}
+			if( i == 4){
+				obj.addProperty("policy_time_name", "mins");
 				obj.addProperty("policy_time_value", 1);
-			//}
-//			if( i == 4){
-//				obj.addProperty("policy_time_name", "mins");
-//				obj.addProperty("policy_time_value", 1);
-//			}
-//			if( i == 5){
-//				obj.addProperty("policy_time_name", "hours");
-//				obj.addProperty("policy_time_value", 1);
-//			}
-//			if( i == 6){
-//				obj.addProperty("policy_time_name", "days");
-//				obj.addProperty("policy_time_value", 1);
-//			}
+			}
+			if( i == 5){
+				obj.addProperty("policy_time_name", "hours");
+				obj.addProperty("policy_time_value", 1);
+			}
+			if( i == 6){
+				obj.addProperty("policy_time_name", "days");
+				obj.addProperty("policy_time_value", 1);
+			}
 
 			JsonArray jsonArray = new JsonArray();
 			JsonObject obj_sch0 = new JsonObject();
@@ -85,19 +81,5 @@ public class WeatherApplication {
 		}
 
 		return "Hello Dayo!";
-	}
-
-	@GetMapping("/weatherinfo")
-	public void sendMessage(){
-		Thread t1 = new Thread(producer);
-		t1.start();
-
-		KafkaConsumerConfig consumers = new KafkaConsumerConfig();
-		try{
-			consumers.init(10);
-
-		}catch (Exception exp) {
-			consumers.shutdown();
-		}
 	}
 }
