@@ -23,7 +23,6 @@ public class ConsumerThreadHandler implements Runnable{
     private PooledConnectionProvider provider = new PooledConnectionProvider(config);
     private UnifiedJedis client = new UnifiedJedis(provider);
 
-
     private static Map<String,Long> time_holder = new HashMap<>();
     private final ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock();
     private final Lock readLock = rwLock.readLock();
@@ -47,10 +46,10 @@ public class ConsumerThreadHandler implements Runnable{
             this.consumerRecord=consumerRecord;
 
             if(isPolicyTimeValid() && isSchemaValid()){
-                //log.info("SUCCESSFUL -> key {} previous timestamp {}, Weather time -> {}", consumerRecord.key(), time_holder.get("id_"+consumerRecord.key()), consumerRecord.value().getTimestamp());
+                log.info("SUCCESSFUL -> key {} previous timestamp {}, Weather time -> {}", consumerRecord.key(), time_holder.get("id_"+consumerRecord.key()), consumerRecord.value().getTimestamp());
             }
             else {
-                //log.info("Not valid Data key {} previous timestamp {}, Weather time -> {}", consumerRecord.key(), time_holder.get("id_"+consumerRecord.key()), consumerRecord.value().getTimestamp());
+                log.info("Not valid Data key {} previous timestamp {}, Weather time -> {}", consumerRecord.key(), time_holder.get("id_"+consumerRecord.key()), consumerRecord.value().getTimestamp());
             }
         }
     }
