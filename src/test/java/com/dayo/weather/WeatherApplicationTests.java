@@ -28,30 +28,16 @@ class WeatherApplicationTests {
 
 	@Test
 	public void contextLoads() throws InterruptedException {
-		//Thread t1 = new Thread(producer);
+		Thread t1 = new Thread(producer);
+		t1.start();
 
-		//KafkaConsumerConfig consumers = new KafkaConsumerConfig ("weather-data");
-		try {
-			//consumers.init(2);
-			//t1.start();
+		KafkaConsumerConfig consumers = new KafkaConsumerConfig();
+		try{
+			consumers.init(15);
 
 		}catch (Exception exp) {
-			//consumers.shutdown();
+			consumers.shutdown();
 		}
-
-//		//consumers.execute(10);
-//
-//		while (i<10000) {
-//			producerRecord = new ProducerRecord<>("weather-data", 0,"1", new Weather(i, "Rainfall", 234.56, 45.67, Instant.now().atZone(zoneId).toInstant().toEpochMilli()));
-//			i++;
-//			minR = new ProducerRecord<>("weather-data", 0,"2", new Weather(i, "Rainfall", 2167.66, 21.63, Instant.now().atZone(zoneId).toInstant().toEpochMilli()));
-//			i++;
-//			hourR = new ProducerRecord<>("weather-data", 0,"3", new Weather(i, "Rainfall", 312.86, 09.71, Instant.now().atZone(zoneId).toInstant().toEpochMilli()));
-//			kafkaTemplate.send(producerRecord);
-//			kafkaTemplate.send(hourR);
-//			kafkaTemplate.send(minR);
-//			i++;
-//		}
 
 
 	}
