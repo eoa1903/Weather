@@ -28,7 +28,7 @@ class WeatherApplicationTests {
 
 		KafkaConsumerConfig consumers = new KafkaConsumerConfig();
 		try{
-			consumers.init(15);
+			consumers.init(8);
 
 		}catch (Exception exp) {
 			//consumers.shutdown();

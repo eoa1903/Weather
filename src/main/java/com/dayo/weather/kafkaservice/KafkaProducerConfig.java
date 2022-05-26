@@ -29,6 +29,7 @@ public class KafkaProducerConfig {
     public ProducerFactory<String, Weather> producerFactory(){
         return new DefaultKafkaProducerFactory<>(producerConfig());
     }
+
     @Bean
     public KafkaTemplate<String,Weather> kafkaTemplate(ProducerFactory<String, Weather> producerFactory){
         return new KafkaTemplate<>(producerFactory);
