@@ -11,6 +11,7 @@ import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.UnifiedJedis;
 import redis.clients.jedis.providers.PooledConnectionProvider;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -23,7 +24,7 @@ public class ConsumerThreadHandler implements Runnable {
     private static PooledConnectionProvider provider = new PooledConnectionProvider(config);
     private static UnifiedJedis client = new UnifiedJedis(provider);
 
-    private static Map<String, Long> time_holder = new HashMap<>();
+    private static Map<String, Long> time_holder = new ConcurrentHashMap<>();
 
     private long timestamp;
     private String policy_type;
@@ -51,12 +52,11 @@ public class ConsumerThreadHandler implements Runnable {
     }
 
     /**
-     * Policy Validator
+     * Policy Time Validator
      *
      * @return true or false
      */
     public synchronized boolean isPolicyTimeValid() {
-
         try {
             //Get Redis Json
             feed_id = "id_" + consumerRecord.key();
@@ -70,55 +70,122 @@ public class ConsumerThreadHandler implements Runnable {
 
             switch (policy_type) {
                 case "secs":
-                    if (time_holder.containsKey(feed_id)) {
-                        if ((timestamp - time_holder.get(feed_id)) > (policy_time * 1000) || (timestamp - time_holder.get(feed_id)) < 0) {
-                            log.info("Updated -> {}, previous {} feed_id {},difference {}", timestamp, time_holder.get(feed_id), feed_id, timestamp - time_holder.get(feed_id));
-                            time_holder.put(feed_id, timestamp);
-                        } else {
-                            log.info(" failed -> {}, previous {} feed_id {}, difference {}", timestamp, time_holder.get(feed_id), feed_id, timestamp - time_holder.get(feed_id));
-                            return false;
-                        }
-                    } else {
-                        time_holder.put(feed_id, timestamp);
-                        log.info("Succ -> {}, feed_id {}", timestamp, feed_id);
-                    }
-                    break;
+                    return isSecsValid(feed_id);
+//                    if (time_holder.containsKey(feed_id)) {
+//                        if ((timestamp - time_holder.get(feed_id)) > (policy_time * 1000) || (timestamp - time_holder.get(feed_id)) < 0) {
+//                            log.info("Updated -> {}, previous {} feed_id {},difference {}", timestamp, time_holder.get(feed_id), feed_id, timestamp - time_holder.get(feed_id));
+//                            time_holder.put(feed_id, timestamp);
+//                        } else {
+//                            log.info(" failed -> {}, previous {} feed_id {}, difference {}", timestamp, time_holder.get(feed_id), feed_id, timestamp - time_holder.get(feed_id));
+//                            return false;
+//                        }
+//                    } else {
+//                        time_holder.put(feed_id, timestamp);
+//                        log.info("Succ -> {}, feed_id {}", timestamp, feed_id);
+//                    }
                 case "days":
-                    if (time_holder.containsKey(feed_id)) {
-                        if ((timestamp - time_holder.get(feed_id)) > (policy_time * 1000 * 24 * 60 * 60) || (timestamp - time_holder.get(feed_id)) < 0)
-                            time_holder.put(feed_id, timestamp);
-                        else
-                            return false;
-                    } else {
-                        time_holder.put(feed_id, timestamp);
-                    }
-                    break;
+                    return isDaysValid(feed_id);
+//                    if (time_holder.containsKey(feed_id)) {
+//                        if ((timestamp - time_holder.get(feed_id)) > (policy_time * 1000 * 24 * 60 * 60) || (timestamp - time_holder.get(feed_id)) < 0)
+//                            time_holder.put(feed_id, timestamp);
+//                        else
+//                            return false;
+//                    } else {
+//                        time_holder.put(feed_id, timestamp);
+//                    }
+//                    break;
                 case "mins":
-                    if (time_holder.containsKey(feed_id)) {
-                        if ((timestamp - time_holder.get(feed_id)) > (policy_time * 1000 * 60) || (timestamp - time_holder.get(feed_id)) < 0)
-                            time_holder.put(feed_id, timestamp);
-                        else
-                            return false;
-                    } else {
-                        time_holder.put(feed_id, timestamp);
-                    }
-                    break;
+                    return isMinsValid(feed_id);
+//                    if (time_holder.containsKey(feed_id)) {
+//                        if ((timestamp - time_holder.get(feed_id)) > (policy_time * 1000 * 60) || (timestamp - time_holder.get(feed_id)) < 0)
+//                            time_holder.put(feed_id, timestamp);
+//                        else
+//                            return false;
+//                    } else {
+//                        time_holder.put(feed_id, timestamp);
+//                    }
+//                    break;
                 case "hours":
-                    if (time_holder.containsKey(feed_id)) {
-                        if ((timestamp - time_holder.get(feed_id)) > (policy_time * 1000 * 60 * 60) || (timestamp - time_holder.get(feed_id)) < 0)
-                            time_holder.put(feed_id, timestamp);
-                        else
-                            return false;
-                    } else {
-                        time_holder.put(feed_id, timestamp);
-                    }
-                    break;
+                    return isHoursValid(feed_id);
+//                    if (time_holder.containsKey(feed_id)) {
+//                        if ((timestamp - time_holder.get(feed_id)) > (policy_time * 1000 * 60 * 60) || (timestamp - time_holder.get(feed_id)) < 0)
+//                            time_holder.put(feed_id, timestamp);
+//                        else
+//                            return false;
+//                    } else {
+//                        time_holder.put(feed_id, timestamp);
+//                    }
+//                    break;
             }
             return true;
         } catch (NullPointerException e) {
             return false;
         }
 
+    }
+
+    public boolean isSecsValid(String feed_id){
+        if (time_holder.containsKey(feed_id)) {
+            if ((timestamp - time_holder.get(feed_id)) > (policy_time * 1000) || (timestamp - time_holder.get(feed_id)) < 0) {
+                log.info("Updated -> {}, previous {} feed_id {},difference {}", timestamp, time_holder.get(feed_id), feed_id, timestamp - time_holder.get(feed_id));
+                time_holder.put(feed_id, timestamp);
+            } else {
+                log.info(" failed -> {}, previous {} feed_id {}, difference {}", timestamp, time_holder.get(feed_id), feed_id, timestamp - time_holder.get(feed_id));
+                return false;
+            }
+        } else {
+            time_holder.put(feed_id, timestamp);
+            log.info("Succ -> {}, feed_id {}", timestamp, feed_id);
+        }
+        return true;
+    }
+
+    public boolean isDaysValid(String feed_id){
+        if (time_holder.containsKey(feed_id)) {
+            if ((timestamp - time_holder.get(feed_id)) > (policy_time * 1000*24*60*60) || (timestamp - time_holder.get(feed_id)) < 0) {
+                log.info("Updated -> {}, previous {} feed_id {},difference {}", timestamp, time_holder.get(feed_id), feed_id, timestamp - time_holder.get(feed_id));
+                time_holder.put(feed_id, timestamp);
+            } else {
+                log.info(" failed -> {}, previous {} feed_id {}, difference {}", timestamp, time_holder.get(feed_id), feed_id, timestamp - time_holder.get(feed_id));
+                return false;
+            }
+        } else {
+            time_holder.put(feed_id, timestamp);
+            log.info("Succ -> {}, feed_id {}", timestamp, feed_id);
+        }
+        return true;
+    }
+
+    public boolean isMinsValid(String feed_id){
+        if (time_holder.containsKey(feed_id)) {
+            if ((timestamp - time_holder.get(feed_id)) > (policy_time * 1000*60) || (timestamp - time_holder.get(feed_id)) < 0) {
+                log.info("Updated -> {}, previous {} feed_id {},difference {}", timestamp, time_holder.get(feed_id), feed_id, timestamp - time_holder.get(feed_id));
+                time_holder.put(feed_id, timestamp);
+            } else {
+                log.info(" failed -> {}, previous {} feed_id {}, difference {}", timestamp, time_holder.get(feed_id), feed_id, timestamp - time_holder.get(feed_id));
+                return false;
+            }
+        } else {
+            time_holder.put(feed_id, timestamp);
+            log.info("Succ -> {}, feed_id {}", timestamp, feed_id);
+        }
+        return true;
+    }
+
+    public boolean isHoursValid(String feed_id){
+        if (time_holder.containsKey(feed_id)) {
+            if ((timestamp - time_holder.get(feed_id)) > (policy_time * 1000*60*60) || (timestamp - time_holder.get(feed_id)) < 0) {
+                log.info("Updated -> {}, previous {} feed_id {},difference {}", timestamp, time_holder.get(feed_id), feed_id, timestamp - time_holder.get(feed_id));
+                time_holder.put(feed_id, timestamp);
+            } else {
+                log.info(" failed -> {}, previous {} feed_id {}, difference {}", timestamp, time_holder.get(feed_id), feed_id, timestamp - time_holder.get(feed_id));
+                return false;
+            }
+        } else {
+            time_holder.put(feed_id, timestamp);
+            log.info("Succ -> {}, feed_id {}", timestamp, feed_id);
+        }
+        return true;
     }
 
     /**
