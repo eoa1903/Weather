@@ -23,7 +23,7 @@ public class KafkaConsumerConfig {
     }
 
     public void init(int numberOfThreads) {
-        executor = new ThreadPoolExecutor(numberOfThreads, 256, 0L, TimeUnit.MILLISECONDS,
+        executor = new ThreadPoolExecutor(numberOfThreads, 20, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>(), new ThreadPoolExecutor.CallerRunsPolicy());
 
         while (true) {
