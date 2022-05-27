@@ -11,6 +11,8 @@ import org.springframework.kafka.core.KafkaTemplate;
 
 import java.time.ZoneId;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 @Log4j2
 @SpringBootTest
 class WeatherApplicationTests {
@@ -36,5 +38,9 @@ class WeatherApplicationTests {
 
 
 	}
-
+//	@Test
+//	public void checkMax(){
+//		assertEquals(2, Math.max(1, 2));
+//	}
+//
 }
