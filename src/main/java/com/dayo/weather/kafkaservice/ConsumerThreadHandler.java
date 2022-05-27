@@ -33,9 +33,13 @@ public class ConsumerThreadHandler implements Runnable {
     private JsonObject json, redis_fields;
     private Object obj;
     private Iterator<JsonElement> variables;
+    private static int counter;
 
     public ConsumerThreadHandler(ConsumerRecords<String, Weather> consumerRecords) {
         this.consumerRecords = consumerRecords;
+    }
+    public ConsumerThreadHandler(ConsumerRecord<String, Weather> consumerRecord) {
+        this.consumerRecord = consumerRecord;
     }
 
     @Override
@@ -56,7 +60,7 @@ public class ConsumerThreadHandler implements Runnable {
      *
      * @return true or false
      */
-    public synchronized boolean isPolicyTimeValid() {
+    public boolean isPolicyTimeValid() {
         try {
             //Get Redis Json
             feed_id = "id_" + consumerRecord.key();
@@ -71,51 +75,12 @@ public class ConsumerThreadHandler implements Runnable {
             switch (policy_type) {
                 case "secs":
                     return isSecsValid(feed_id);
-//                    if (time_holder.containsKey(feed_id)) {
-//                        if ((timestamp - time_holder.get(feed_id)) > (policy_time * 1000) || (timestamp - time_holder.get(feed_id)) < 0) {
-//                            log.info("Updated -> {}, previous {} feed_id {},difference {}", timestamp, time_holder.get(feed_id), feed_id, timestamp - time_holder.get(feed_id));
-//                            time_holder.put(feed_id, timestamp);
-//                        } else {
-//                            log.info(" failed -> {}, previous {} feed_id {}, difference {}", timestamp, time_holder.get(feed_id), feed_id, timestamp - time_holder.get(feed_id));
-//                            return false;
-//                        }
-//                    } else {
-//                        time_holder.put(feed_id, timestamp);
-//                        log.info("Succ -> {}, feed_id {}", timestamp, feed_id);
-//                    }
                 case "days":
                     return isDaysValid(feed_id);
-//                    if (time_holder.containsKey(feed_id)) {
-//                        if ((timestamp - time_holder.get(feed_id)) > (policy_time * 1000 * 24 * 60 * 60) || (timestamp - time_holder.get(feed_id)) < 0)
-//                            time_holder.put(feed_id, timestamp);
-//                        else
-//                            return false;
-//                    } else {
-//                        time_holder.put(feed_id, timestamp);
-//                    }
-//                    break;
                 case "mins":
                     return isMinsValid(feed_id);
-//                    if (time_holder.containsKey(feed_id)) {
-//                        if ((timestamp - time_holder.get(feed_id)) > (policy_time * 1000 * 60) || (timestamp - time_holder.get(feed_id)) < 0)
-//                            time_holder.put(feed_id, timestamp);
-//                        else
-//                            return false;
-//                    } else {
-//                        time_holder.put(feed_id, timestamp);
-//                    }
-//                    break;
                 case "hours":
                     return isHoursValid(feed_id);
-//                    if (time_holder.containsKey(feed_id)) {
-//                        if ((timestamp - time_holder.get(feed_id)) > (policy_time * 1000 * 60 * 60) || (timestamp - time_holder.get(feed_id)) < 0)
-//                            time_holder.put(feed_id, timestamp);
-//                        else
-//                            return false;
-//                    } else {
-//                        time_holder.put(feed_id, timestamp);
-//                    }
-//                    break;
             }
             return true;
         } catch (NullPointerException e) {

@@ -38,7 +38,7 @@ public class KafkaConsumerConfig {
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 1000);    //1000 polls
         props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, 150000);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "weatherSubscriber");
-        props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, 1000);
+        props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, 900);
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
         props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, 500);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
