@@ -36,19 +36,15 @@ public class ConsumerThreadHandler implements Runnable {
         this.consumerRecords = consumerRecords;
     }
 
-    public ConsumerThreadHandler(ConsumerRecord<String, Weather> consumerRecord) {
-        this.consumerRecord = consumerRecord;
-    }
-
     @Override
     public void run() {
         for (ConsumerRecord<String, Weather> consumerRecord : consumerRecords) {
             this.consumerRecord = consumerRecord;
 
             if (isPolicyTimeValid() && isSchemaValid()) {
-                log.info("SUCCESSFUL");
+                //log.info("SUCCESSFUL");
             } else {
-                log.info("Not valid");
+                //log.info("Not valid");
             }
         }
     }
