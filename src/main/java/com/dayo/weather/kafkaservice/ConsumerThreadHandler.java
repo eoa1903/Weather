@@ -12,8 +12,6 @@ import redis.clients.jedis.UnifiedJedis;
 import redis.clients.jedis.providers.PooledConnectionProvider;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 @Log4j2
 public class ConsumerThreadHandler implements Runnable {
@@ -25,7 +23,6 @@ public class ConsumerThreadHandler implements Runnable {
     private static UnifiedJedis client = new UnifiedJedis(provider);
 
     private static Map<String, Long> time_holder = new ConcurrentHashMap<>();
-
     private long timestamp;
     private String policy_type;
     private long policy_time;
@@ -33,11 +30,12 @@ public class ConsumerThreadHandler implements Runnable {
     private JsonObject json, redis_fields;
     private Object obj;
     private Iterator<JsonElement> variables;
-    private static int counter;
+
 
     public ConsumerThreadHandler(ConsumerRecords<String, Weather> consumerRecords) {
         this.consumerRecords = consumerRecords;
     }
+
     public ConsumerThreadHandler(ConsumerRecord<String, Weather> consumerRecord) {
         this.consumerRecord = consumerRecord;
     }
@@ -48,9 +46,9 @@ public class ConsumerThreadHandler implements Runnable {
             this.consumerRecord = consumerRecord;
 
             if (isPolicyTimeValid() && isSchemaValid()) {
-                //log.info("SUCCESSFUL -> key {} previous timestamp {}, difference -> {} Weather time -> {}", consumerRecord.key(), getTime("id_"+consumerRecord.key()), consumerRecord.value().getTimestamp()-getTime("id_"+consumerRecord.key()),consumerRecord.value().getTimestamp());
+                log.info("SUCCESSFUL");
             } else {
-                //log.info("Not valid Data key {} previous timestamp {}, difference -> {} Weather time -> {}", consumerRecord.key(), getTime("id_"+consumerRecord.key()),consumerRecord.value().getTimestamp()-getTime("id_"+consumerRecord.key()), consumerRecord.value().getTimestamp());
+                log.info("Not valid");
             }
         }
     }
@@ -158,7 +156,7 @@ public class ConsumerThreadHandler implements Runnable {
      *
      * @return true or false
      */
-    public synchronized boolean isSchemaValid() {
+    public boolean isSchemaValid() {
         try {
             variables = json.getAsJsonArray("schema").iterator();
             while (variables.hasNext()) {
@@ -167,9 +165,7 @@ public class ConsumerThreadHandler implements Runnable {
                     return false;
                 }
             }
-        } catch (Exception e) {
-
-        }
+        } catch (Exception e) {}
         return true;
     }
 

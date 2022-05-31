@@ -21,7 +21,7 @@ public class KafkaProducerConfig {
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.2.47:29092");
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
-        props.put(ProducerConfig.BATCH_SIZE_CONFIG,"100000");
+        props.put(ProducerConfig.BATCH_SIZE_CONFIG,"1000000");
         props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "lz4");
         return props;
     }
