@@ -16,8 +16,6 @@ import redis.clients.jedis.providers.PooledConnectionProvider;
 @RestController
 @SpringBootApplication
 public class WeatherApplication {
-	@Autowired
-	Producer producer;
 
 
 
