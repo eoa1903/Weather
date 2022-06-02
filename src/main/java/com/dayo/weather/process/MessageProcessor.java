@@ -5,6 +5,7 @@ import com.dayo.weather.entity.Weather;
 import com.dayo.weather.entity.WeatherMetaDataDto;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import lombok.Synchronized;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -38,17 +39,18 @@ public class MessageProcessor {
     RedisConnectionPool connectionPool;
 
     public void process(Weather data, String feedID){
-        WeatherMetaDataDto weatherMetaDataDto = connectionPool.getWeatherMetaDataDto(feedID);
+        synchronized (this) {
+            WeatherMetaDataDto weatherMetaDataDto = connectionPool.getWeatherMetaDataDto(feedID);
 
-        log.info("weathMeta{}",weatherMetaDataDto.toString());
-        if(!isMessageTimeValid(data.getTimestamp(), feedID,weatherMetaDataDto)){
-           log.info("Message time is not valid");
-        }
-        else{
-            log.info("Valid");
-        }
-        if(!isSchemaValid(data, feedID)){
-            log.info("Message failed schema validation");
+            log.info("weathMeta{}", weatherMetaDataDto.toString());
+            if (!isMessageTimeValid(data.getTimestamp(), feedID, weatherMetaDataDto)) {
+                log.info("Message time is not valid");
+            } else {
+                log.info("Valid");
+            }
+            if (!isSchemaValid(data, feedID)) {
+                log.info("Message failed schema validation");
+            }
         }
     }
 

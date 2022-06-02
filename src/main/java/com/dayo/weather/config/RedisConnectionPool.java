@@ -19,6 +19,7 @@ import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.UnifiedJedis;
 import redis.clients.jedis.providers.PooledConnectionProvider;
 
+import java.time.Instant;
 import java.util.Iterator;
 import java.util.Optional;
 
@@ -35,11 +36,14 @@ public class RedisConnectionPool {
     private UnifiedJedis client= new UnifiedJedis(provider);
     Config config1 = new Config();
     RedissonClient client1;
+    RBucket<WeatherMetaDataDto> bucket;
 
     public RedisConnectionPool(){
         config1.useSingleServer()
                 .setAddress("redis://192.168.2.47:6379");
         this.client1 = Redisson.create(config1);
+        bucket = client1.getBucket("id_1");
+        bucket.set(new WeatherMetaDataDto(Instant.now()));
     }
 
 //    public RedisConnectionPool(){
