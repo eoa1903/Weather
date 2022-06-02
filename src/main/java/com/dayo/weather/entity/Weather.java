@@ -26,7 +26,6 @@ public class Weather implements Serializable {
     @JsonProperty("timestamp")
     private Long timestamp;
 
-
     public String toString(){
        return "{\"id\":"+this.id+",\"phyQt\":"+this.phyQt+",\"lat\":"+this.lat+",\"lon\":"+this.lon+",\"timestamp\":"+this.timestamp+"}";
     }

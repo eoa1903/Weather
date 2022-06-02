@@ -27,14 +27,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 @Log4j2
 public class MessageProcessor {
-    private static Map<String, Long> time_holder = new ConcurrentHashMap<>();
-    private long timestamp;
-    private String policy_type;
-    private long policy_time;
-    private String feed_id;
-    //private JsonObject json, redis_fields;
-    private Object obj;
-
     @Autowired
     RedisConnectionPool connectionPool;
 
@@ -58,6 +50,7 @@ public class MessageProcessor {
         Instant lastRefreshTimestamp = Optional.ofNullable(weatherMetaDataDto).map(WeatherMetaDataDto::getLasttimestamp).orElse(null);
         log.info("RefreshTime{}", lastRefreshTimestamp);
         Instant weatherTimeInstant = Instant.ofEpochMilli(recordTimestamp);
+        assert lastRefreshTimestamp != null;
         if (weatherTimeInstant.isBefore(lastRefreshTimestamp)) {
             return true;
         }
@@ -94,7 +87,6 @@ public class MessageProcessor {
     public boolean isSchemaValid(Weather data, String feedID) {
         Iterator<JsonElement> variables=null;
 
-        //log.info("here");
         try {
             variables = connectionPool.getSchema(feedID);
             JsonObject redis_fields;

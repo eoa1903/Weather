@@ -10,6 +10,7 @@ import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.redisson.Redisson;
 import org.redisson.api.RBucket;
+import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,22 +29,21 @@ import java.util.Optional;
 public class RedisConnectionPool {
     @Autowired
     ObjectMapper objectMapper;
-    //@Autowired
     private HostAndPort config= new HostAndPort("192.168.2.47", 6379);
-    //@Autowired
     private PooledConnectionProvider provider= new PooledConnectionProvider(config);
-    //@Autowired
     private UnifiedJedis client= new UnifiedJedis(provider);
     Config config1 = new Config();
     RedissonClient client1;
-    RBucket<WeatherMetaDataDto> bucket;
+    RMap<String,WeatherMetaDataDto> bucket;
+    //Rmap problem; create, set, initialize;
 
     public RedisConnectionPool(){
         config1.useSingleServer()
                 .setAddress("redis://192.168.2.47:6379");
         this.client1 = Redisson.create(config1);
-        bucket = client1.getBucket("id_1");
-        bucket.set(new WeatherMetaDataDto(Instant.now()));
+        client1.getMap("weather-data").put("1",new WeatherMetaDataDto(Instant.now()));
+//        this.bucket = client1.getBucket("id_1");
+//        this.bucket.set(new WeatherMetaDataDto(Instant.now()));
     }
 
 //    public RedisConnectionPool(){
@@ -73,17 +73,18 @@ public class RedisConnectionPool {
         return getFeed(feedID).get("policy_time_name").getAsString();
     }
     public WeatherMetaDataDto getWeatherMetaDataDto(String feedID){
-        return Optional.ofNullable(getWeatherMetadataDtoBucket(feedID).get())
+        return Optional.ofNullable(getWeatherMetadataDtoBucket(feedID).get(feedID))
                 .map(this::readMetadataDtoFromJson)
                 .orElse(null);
     }
-    public void setRefreshTimeStamp(String feedID, WeatherMetaDataDto data){
-        RBucket<WeatherMetaDataDto> bucket = client1.getBucket(feedID);
-        bucket.set(data);
-    }
+//    public void setRefreshTimeStamp(String feedID, WeatherMetaDataDto data){
+//       /* RBucket<WeatherMetaDataDto>*/ bucket = client1.getBucket(feedID);
+//        bucket.set(data);
+//    }
 
-    public RBucket<String> getWeatherMetadataDtoBucket(String feedID){
-        return client1.getBucket(feedID);
+    public RMap<String,String> getWeatherMetadataDtoBucket(String feedID){
+        log.info("Map {}",client1.getMap(feedID));
+        return client1.getMap(feedID);
     }
 
     @SneakyThrows
