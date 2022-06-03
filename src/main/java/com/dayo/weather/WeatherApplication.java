@@ -6,6 +6,9 @@ import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import redis.clients.jedis.HostAndPort;
@@ -15,6 +18,8 @@ import redis.clients.jedis.providers.PooledConnectionProvider;
 
 @RestController
 @SpringBootApplication
+//@ComponentScan(basePackages = {"com.dayo.weather.*"})
+//@EntityScan(basePackages = {"com.dayo.weather.*"})
 public class WeatherApplication {
 
 
@@ -30,15 +35,15 @@ public class WeatherApplication {
 		PooledConnectionProvider provider = new PooledConnectionProvider(config);
 		UnifiedJedis client = new UnifiedJedis(provider);
 
-		int i=4;
-		while(i<=6) {
+		int i=1;
+		while(i<=2) {
 			JsonObject obj = new JsonObject();
 			obj.addProperty("id", i);
-//			//if( i%2 == 0){
-//				obj.addProperty("policy_time_name", "secs");
-//				obj.addProperty("policy_time_value", 1);
-//			//}
-			if( i == 4){
+			if( i == 1){
+				obj.addProperty("policy_time_name", "secs");
+				obj.addProperty("policy_time_value", 1);
+			}
+			if( i == 2){
 				obj.addProperty("policy_time_name", "mins");
 				obj.addProperty("policy_time_value", 1);
 			}

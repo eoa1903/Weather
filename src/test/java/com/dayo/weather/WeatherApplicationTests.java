@@ -1,20 +1,20 @@
 package com.dayo.weather;
 
-import com.dayo.weather.entity.Weather;
-import com.dayo.weather.kafkaservice.Producer;
 import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.kafka.core.KafkaTemplate;
 
-import java.time.ZoneId;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Log4j2
 @SpringBootTest
+@ComponentScan(basePackages = {"com.dayo.weather.*"})
+@EntityScan(basePackages = {"com.dayo.weather.*"})
 class WeatherApplicationTests {
 	@Autowired
 	KafkaTemplate<String,String>kafkaTemplate;

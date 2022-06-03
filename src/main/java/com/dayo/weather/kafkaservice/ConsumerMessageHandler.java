@@ -22,8 +22,6 @@ public class ConsumerMessageHandler {
         try {
             Weather weather = objectMapper.readValue(data, Weather.class);
             messageProcessor.process(weather,feedID);
-
-            //log.info("Data {}",weather.toString());
         }
         catch (Exception e){
 

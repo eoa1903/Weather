@@ -3,26 +3,19 @@ package com.dayo.weather.process;
 import com.dayo.weather.config.RedisConnectionPool;
 import com.dayo.weather.entity.Weather;
 import com.dayo.weather.entity.WeatherMetaDataDto;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import lombok.Synchronized;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import redis.clients.jedis.HostAndPort;
-import redis.clients.jedis.UnifiedJedis;
-import redis.clients.jedis.providers.PooledConnectionProvider;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @Log4j2
@@ -30,27 +23,34 @@ public class MessageProcessor {
     @Autowired
     RedisConnectionPool connectionPool;
 
-    public void process(Weather data, String feedID){
-        synchronized (this) {
+    public synchronized void process(Weather data, String feedID) throws JsonProcessingException {
             WeatherMetaDataDto weatherMetaDataDto = connectionPool.getWeatherMetaDataDto(feedID);
-
-            log.info("weathMeta{}", weatherMetaDataDto.toString());
-            if (!isMessageTimeValid(data.getTimestamp(), feedID, weatherMetaDataDto)) {
-                log.info("Message time is not valid");
-            } else {
-                log.info("Valid");
-            }
+            checkMessageWithinLimit(data.getTimestamp(),feedID,weatherMetaDataDto);
             if (!isSchemaValid(data, feedID)) {
                 log.info("Message failed schema validation");
             }
+    }
+
+    public void checkMessageWithinLimit(Long recordTimestamp,String feedID,WeatherMetaDataDto weatherMetaDataDto) throws JsonProcessingException {
+        if (!isMessageTimeValid(recordTimestamp, feedID, weatherMetaDataDto)) {
+            log.info("Message time is not valid");
+        }
+        else {
+            log.info("True updating time");
+            connectionPool.setRefreshTimeStamp(feedID, new WeatherMetaDataDto(Instant.ofEpochMilli(recordTimestamp)));
         }
     }
 
     public boolean isMessageTimeValid(Long recordTimestamp,String feedID,WeatherMetaDataDto weatherMetaDataDto){
         Instant lastRefreshTimestamp = Optional.ofNullable(weatherMetaDataDto).map(WeatherMetaDataDto::getLasttimestamp).orElse(null);
-        log.info("RefreshTime{}", lastRefreshTimestamp);
+        log.info("RefreshTime -> {}", lastRefreshTimestamp);
+
+        if(lastRefreshTimestamp == null) {
+            log.info("valid data {}, instant {}", recordTimestamp, Instant.ofEpochMilli(recordTimestamp));
+            return true;
+        }
+
         Instant weatherTimeInstant = Instant.ofEpochMilli(recordTimestamp);
-        assert lastRefreshTimestamp != null;
         if (weatherTimeInstant.isBefore(lastRefreshTimestamp)) {
             return true;
         }
@@ -58,7 +58,6 @@ public class MessageProcessor {
         Long refreshRate = connectionPool.getPolicyTime(feedID);
         String refreshPeriod = connectionPool.getPolicyTimeName(feedID);
         offsetTime = lastRefreshTimestamp.plus(Duration.of(refreshRate, getTemporalUnit(refreshPeriod)));
-        //log.info("Record time {}, offsetTime{}", weatherTimeInstant,offsetTime);
 
         return weatherTimeInstant.isAfter(offsetTime);
     }
@@ -86,7 +85,6 @@ public class MessageProcessor {
 
     public boolean isSchemaValid(Weather data, String feedID) {
         Iterator<JsonElement> variables=null;
-
         try {
             variables = connectionPool.getSchema(feedID);
             JsonObject redis_fields;

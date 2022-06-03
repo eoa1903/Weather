@@ -33,7 +33,6 @@ public class ConsumerMessageListner {
                 }
             }
         }
-        catch (Exception e){
-        }
+        catch (Exception e){        }
     }
 }
