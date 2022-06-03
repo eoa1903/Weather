@@ -18,7 +18,7 @@ public class ConsumerConfig {
 
     public Map<String, Object> consumerConfig() {
         Map<String, Object> props = new HashMap<>();
-        props.put(org.apache.kafka.clients.consumer.ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "[IP ADDRESS]:29092");
+        props.put(org.apache.kafka.clients.consumer.ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:29092");
         props.put(org.apache.kafka.clients.consumer.ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 10000);    //10000 polls
         props.put(org.apache.kafka.clients.consumer.ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, 1000000);
         props.put(org.apache.kafka.clients.consumer.ConsumerConfig.GROUP_ID_CONFIG, "weatherSubscriber");

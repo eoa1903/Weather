@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-
 import java.time.Duration;
 
 @Component
@@ -25,14 +24,11 @@ public class ConsumerMessageListner {
     }
 
     public void run(){
-        try{
-            KafkaConsumer<String,String>kafkaConsumer = consumerConfig.getKafkaConsumer();
-            while(true){
-                for(ConsumerRecord<String, String> record:kafkaConsumer.poll(Duration.ofMillis(100))) {
-                    messageHandler.process(record.value(),"id_"+record.key());
-                }
+        KafkaConsumer<String,String>kafkaConsumer = consumerConfig.getKafkaConsumer();
+        while(true){
+            for(ConsumerRecord<String, String> record:kafkaConsumer.poll(Duration.ofMillis(1000))) {
+                messageHandler.process(record.value(),"id_"+record.key());
             }
         }
-        catch (Exception e){        }
     }
 }

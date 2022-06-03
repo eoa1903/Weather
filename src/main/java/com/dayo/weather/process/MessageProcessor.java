@@ -33,11 +33,11 @@ public class MessageProcessor {
 
     public void checkMessageWithinLimit(Long recordTimestamp,String feedID,WeatherMetaDataDto weatherMetaDataDto) throws JsonProcessingException {
         if (!isMessageTimeValid(recordTimestamp, feedID, weatherMetaDataDto)) {
-            log.info("Message time is not valid");
+            log.info("Message rejected timestamp {}",Instant.ofEpochMilli(recordTimestamp));
         }
         else {
-            log.info("True updating time");
-            connectionPool.setRefreshTimeStamp(feedID, new WeatherMetaDataDto(Instant.ofEpochMilli(recordTimestamp)));
+            log.info("Msg Accepted timestamp{}",Instant.ofEpochMilli(recordTimestamp));
+            connectionPool.updateRefreshTimeStamp(feedID, new WeatherMetaDataDto(Instant.ofEpochMilli(recordTimestamp)));
         }
     }
 

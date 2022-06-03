@@ -13,10 +13,7 @@ import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.UnifiedJedis;
-import redis.clients.jedis.providers.PooledConnectionProvider;
-
 import java.util.Iterator;
 import java.util.Optional;
 
@@ -25,9 +22,10 @@ import java.util.Optional;
 @SuppressWarnings("FieldCanBeLocal")
 public class RedisConnectionPool {
     @Autowired
-    RedissonClient redissonClient;
+    public RedissonClient redissonClient;
     @Autowired
-    UnifiedJedis jedis;
+    public UnifiedJedis jedis;
+
 
     private static RBucket<String> bucket;
 
@@ -62,7 +60,7 @@ public class RedisConnectionPool {
                 .map(this::readMetadataDtoFromJson)
                 .orElse(null);
     }
-    public void setRefreshTimeStamp(String feedID, WeatherMetaDataDto data) throws JsonProcessingException {
+    public void updateRefreshTimeStamp(String feedID, WeatherMetaDataDto data) throws JsonProcessingException {
         bucket = redissonClient.getBucket("weatherMetadata_"+feedID);
         bucket.set(objectMapper.writeValueAsString(data));
     }

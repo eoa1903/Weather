@@ -18,8 +18,6 @@ import redis.clients.jedis.providers.PooledConnectionProvider;
 
 @RestController
 @SpringBootApplication
-//@ComponentScan(basePackages = {"com.dayo.weather.*"})
-//@EntityScan(basePackages = {"com.dayo.weather.*"})
 public class WeatherApplication {
 
 

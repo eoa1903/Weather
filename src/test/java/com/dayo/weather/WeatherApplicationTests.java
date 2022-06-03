@@ -9,6 +9,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.kafka.core.KafkaTemplate;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 
 @Log4j2
@@ -28,7 +31,7 @@ class WeatherApplicationTests {
 					"\"phyQt\":\"Rainfall\",\n" +
 					"\"lon\":" + 23.5 + ",\n" +
 					"\"lat\":" + 2.89 + ",\n" +
-					"\"timestamp\":" + System.currentTimeMillis() + "}");
+					"\"timestamp\":" + ZonedDateTime.ofInstant(Instant.now(),ZoneId.of("UTC")).toInstant().toEpochMilli() + "}");
 			kafkaTemplate.send(record);
 			i++;
 		}

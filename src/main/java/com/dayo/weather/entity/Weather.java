@@ -15,15 +15,10 @@ import java.io.Serializable;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Weather implements Serializable {
 
-    @JsonProperty("id")
     private Integer id;
-    @JsonProperty("phyQt")
     private String phyQt;
-    @JsonProperty("lon")
     private Double lon;
-    @JsonProperty("lat")
     private Double lat;
-    @JsonProperty("timestamp")
     private Long timestamp;
 
     public String toString(){

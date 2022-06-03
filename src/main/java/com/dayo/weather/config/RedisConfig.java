@@ -16,7 +16,7 @@ public class RedisConfig {
     public RedissonClient getRedis(){
         try {
             Config config = new Config();
-            config.useSingleServer().setAddress("redis://[IP ADDRESS]:6379");
+            config.useSingleServer().setAddress("redis://localhost:6379");
             return Redisson.create(config);
         }
         catch (Exception e){ return null;}
@@ -24,7 +24,7 @@ public class RedisConfig {
 
     @Bean
     public UnifiedJedis getJedis(){
-        HostAndPort config= new HostAndPort("[IP ADDRESS]", 6379);
+        HostAndPort config= new HostAndPort("localhost", 6379);
         PooledConnectionProvider provider= new PooledConnectionProvider(config);
         UnifiedJedis client= new UnifiedJedis(provider);
         return client;
