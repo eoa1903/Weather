@@ -31,13 +31,16 @@ public class MessageProcessor {
             WeatherMetaDataDto weatherMetaDataDto = connectionPool.getWeatherMetaDataDto(feedID);
             checkMessageWithinLimit(data.getTimestamp(), feedID, weatherMetaDataDto);
             checkifSchemaValid(data, feedID);
+            //Once message has passed both validations print to another topic.
             printToKafka();
         }
         catch (Exception e){
             log.warn("Message Not Valid: {}",e.getMessage());
         }
     }
-    public void printToKafka(){}
+    public void printToKafka(){
+        //send to another topic
+    }
 
     public void checkifSchemaValid(Weather data, String feedID) throws SchemaFailedException {
         if (!isSchemaValid(data, feedID)) {
