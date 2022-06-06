@@ -3,6 +3,9 @@ package com.dayo.weather.process;
 import com.dayo.weather.config.RedisConnectionPool;
 import com.dayo.weather.entity.Weather;
 import com.dayo.weather.entity.WeatherMetaDataDto;
+import com.dayo.weather.exception.MessageRejectedException;
+import com.dayo.weather.exception.SchemaFailedException;
+import com.dayo.weather.exception.StatusCode;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -23,17 +26,28 @@ public class MessageProcessor {
     @Autowired
     RedisConnectionPool connectionPool;
 
-    public synchronized void process(Weather data, String feedID) throws JsonProcessingException {
+    public synchronized void process(Weather data, String feedID){
+        try {
             WeatherMetaDataDto weatherMetaDataDto = connectionPool.getWeatherMetaDataDto(feedID);
-            checkMessageWithinLimit(data.getTimestamp(),feedID,weatherMetaDataDto);
-            if (!isSchemaValid(data, feedID)) {
-                log.info("Message failed schema validation");
-            }
+            checkMessageWithinLimit(data.getTimestamp(), feedID, weatherMetaDataDto);
+            checkifSchemaValid(data, feedID);
+            printToKafka();
+        }
+        catch (Exception e){
+            log.warn("Not Valid: {}",e.getMessage());
+        }
+    }
+    public void printToKafka(){}
+
+    public void checkifSchemaValid(Weather data, String feedID) throws SchemaFailedException {
+        if (!isSchemaValid(data, feedID)) {
+            throw new SchemaFailedException(StatusCode.DATA_DOES_NOT_MATCH_SCHEMA);
+        }
     }
 
-    public void checkMessageWithinLimit(Long recordTimestamp,String feedID,WeatherMetaDataDto weatherMetaDataDto) throws JsonProcessingException {
+    public void checkMessageWithinLimit(Long recordTimestamp,String feedID,WeatherMetaDataDto weatherMetaDataDto) throws JsonProcessingException, MessageRejectedException {
         if (!isMessageTimeValid(recordTimestamp, feedID, weatherMetaDataDto)) {
-            log.info("Message rejected timestamp {}",Instant.ofEpochMilli(recordTimestamp));
+            throw new MessageRejectedException(StatusCode.FAILED_TIME_VALIDATION,Instant.ofEpochMilli(recordTimestamp), weatherMetaDataDto.getLasttimestamp(),connectionPool.getPolicyTime(feedID),connectionPool.getPolicyTimeName(feedID));
         }
         else {
             log.info("Msg Accepted timestamp{}",Instant.ofEpochMilli(recordTimestamp));
@@ -43,7 +57,7 @@ public class MessageProcessor {
 
     public boolean isMessageTimeValid(Long recordTimestamp,String feedID,WeatherMetaDataDto weatherMetaDataDto){
         Instant lastRefreshTimestamp = Optional.ofNullable(weatherMetaDataDto).map(WeatherMetaDataDto::getLasttimestamp).orElse(null);
-        log.info("RefreshTime -> {}", lastRefreshTimestamp);
+        //log.info("RefreshTime -> {}", lastRefreshTimestamp);
 
         if(lastRefreshTimestamp == null) {
             log.info("valid data {}, instant {}", recordTimestamp, Instant.ofEpochMilli(recordTimestamp));

@@ -33,6 +33,7 @@ class WeatherApplicationTests {
 					"\"lat\":" + 2.89 + ",\n" +
 					"\"timestamp\":" + ZonedDateTime.ofInstant(Instant.now(),ZoneId.of("UTC")).toInstant().toEpochMilli() + "}");
 			kafkaTemplate.send(record);
+			Thread.sleep(35);
 			i++;
 		}
 	}

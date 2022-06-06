@@ -17,7 +17,7 @@ public class KafkaProducerConfig {
     public Map<String, Object> producerConfig(){
         Map<String,Object> props = new HashMap<>();
         props.put(ProducerConfig.ACKS_CONFIG,"all");
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:29092");
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.2.47:29092");
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.BATCH_SIZE_CONFIG,"1000000");

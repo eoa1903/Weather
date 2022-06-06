@@ -1,5 +1,7 @@
 package com.dayo.weather.kafkaservice;
 
+import com.dayo.weather.exception.AsyncExceptionHandler;
+import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
@@ -10,11 +12,15 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @Configuration
 public class ThreadExecutorService implements AsyncConfigurer {
     @Override
+    public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
+        return new AsyncExceptionHandler();
+    }
+    @Override
     @Bean(name = "threadExecutor")
     public ThreadPoolTaskExecutor getAsyncExecutor(){
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(20);
-        executor.setMaxPoolSize(200);
+        executor.setMaxPoolSize(500);
         executor.setQueueCapacity(0);
         executor.setAllowCoreThreadTimeOut(true); //allow threads that are idle to release their memory
         executor.initialize();

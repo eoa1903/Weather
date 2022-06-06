@@ -23,7 +23,7 @@ public class ConsumerMessageHandler {
             messageProcessor.process(weather,feedID);
         }
         catch (Exception e){
-
+            log.warn("Unable to process message: " + data, e);
         }
     }
 }
