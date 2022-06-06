@@ -22,7 +22,7 @@ class WeatherApplicationTests {
 	@Autowired
 	KafkaTemplate<String,String>kafkaTemplate;
 
-	@Test
+	@Test  //Test Producer Application
 	public void contextLoads() throws InterruptedException {
 
 		int i = 0;
