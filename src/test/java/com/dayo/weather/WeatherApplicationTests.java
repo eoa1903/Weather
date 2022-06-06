@@ -35,6 +35,30 @@ class WeatherApplicationTests {
 			kafkaTemplate.send(record);
 			Thread.sleep(35);
 			i++;
+			ProducerRecord<String, String> record1 = new ProducerRecord<>("weather-data", 0, "2", "{\"id\":" + i + ",\n" +
+					"\"phyQt\":\"Rainfall\",\n" +
+					"\"lon\":" + 23.5 + ",\n" +
+					"\"lat\":" + 2.89 + ",\n" +
+					"\"timestamp\":" + ZonedDateTime.ofInstant(Instant.now(),ZoneId.of("UTC")).toInstant().toEpochMilli() + "}");
+			kafkaTemplate.send(record1);
+			Thread.sleep(25);
+			i++;
+			ProducerRecord<String, String> record2 = new ProducerRecord<>("weather-data", 0, "3", "{\"id\":" + i + ",\n" +
+					"\"phyQt\":\"Rainfall\",\n" +
+					"\"lon\":" + 23.5 + ",\n" +
+					"\"lat\":" + 2.89 + ",\n" +
+					"\"timestamp\":" + ZonedDateTime.ofInstant(Instant.now(),ZoneId.of("UTC")).toInstant().toEpochMilli() + "}");
+			kafkaTemplate.send(record2);
+			Thread.sleep(35);
+			i++;
+			ProducerRecord<String, String> record3 = new ProducerRecord<>("weather-data", 0, "4", "{\"id\":" + i + ",\n" +
+					"\"phyQt\":\"Rainfall\",\n" +
+					"\"lon\":" + 23.5 + ",\n" +
+					"\"lat\":" + 2.89 + ",\n" +
+					"\"timestamp\":" + ZonedDateTime.ofInstant(Instant.now(),ZoneId.of("UTC")).toInstant().toEpochMilli() + "}");
+			kafkaTemplate.send(record3);
+			Thread.sleep(10);
+			i++;
 		}
 	}
 }

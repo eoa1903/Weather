@@ -15,12 +15,13 @@ public class ThreadExecutorService implements AsyncConfigurer {
     public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
         return new AsyncExceptionHandler();
     }
+
     @Override
     @Bean(name = "threadExecutor")
     public ThreadPoolTaskExecutor getAsyncExecutor(){
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(20);
-        executor.setMaxPoolSize(500);
+        executor.setMaxPoolSize(200);
         executor.setQueueCapacity(0);
         executor.setAllowCoreThreadTimeOut(true); //allow threads that are idle to release their memory
         executor.initialize();

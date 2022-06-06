@@ -34,7 +34,7 @@ public class WeatherApplication {
 		UnifiedJedis client = new UnifiedJedis(provider);
 
 		int i=1;
-		while(i<=2) {
+		while(i<=4) {
 			JsonObject obj = new JsonObject();
 			obj.addProperty("id", i);
 			if( i == 1){
@@ -45,11 +45,11 @@ public class WeatherApplication {
 				obj.addProperty("policy_time_name", "mins");
 				obj.addProperty("policy_time_value", 1);
 			}
-			if( i == 5){
+			if( i == 3){
 				obj.addProperty("policy_time_name", "hours");
 				obj.addProperty("policy_time_value", 1);
 			}
-			if( i == 6){
+			if( i == 4){
 				obj.addProperty("policy_time_name", "days");
 				obj.addProperty("policy_time_value", 1);
 			}

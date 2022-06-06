@@ -34,7 +34,7 @@ public class MessageProcessor {
             printToKafka();
         }
         catch (Exception e){
-            log.warn("Not Valid: {}",e.getMessage());
+            log.warn("Message Not Valid: {}",e.getMessage());
         }
     }
     public void printToKafka(){}
@@ -60,7 +60,7 @@ public class MessageProcessor {
         //log.info("RefreshTime -> {}", lastRefreshTimestamp);
 
         if(lastRefreshTimestamp == null) {
-            log.info("valid data {}, instant {}", recordTimestamp, Instant.ofEpochMilli(recordTimestamp));
+            //log.info("valid data {}, instant {}", recordTimestamp, Instant.ofEpochMilli(recordTimestamp));
             return true;
         }
 
@@ -104,7 +104,6 @@ public class MessageProcessor {
             JsonObject redis_fields;
             while (variables.hasNext()) {
                 redis_fields = variables.next().getAsJsonObject();
-                //log.info("dat {}",redis_fields);
                 if (!doesObjectContainField(redis_fields.get("name").getAsString(),data)) {
                     return false;
                 }

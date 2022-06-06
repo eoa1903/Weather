@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.dayo.weather.entity.Weather;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import lombok.NoArgsConstructor;
 import org.apache.kafka.common.errors.SerializationException;
 import org.apache.kafka.common.serialization.Deserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,9 +12,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@NoArgsConstructor
 public class CustomDeserializer implements Deserializer<Weather> {
     private ObjectMapper objectMapper = new ObjectMapper();
-    public CustomDeserializer(){}
     //private Class<Weather> tClass;
 
     @Override

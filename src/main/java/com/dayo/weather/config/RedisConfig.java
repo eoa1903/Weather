@@ -8,8 +8,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.UnifiedJedis;
-import redis.clients.jedis.providers.ConnectionProvider;
-import redis.clients.jedis.providers.PooledConnectionProvider;
 import redis.clients.jedis.providers.ShardedConnectionProvider;
 
 import java.util.Arrays;
@@ -22,14 +20,12 @@ public class RedisConfig {
     @Bean
     public RedissonClient getRedis(){
         Config config = new Config();
-        config.setNettyThreads(2);
         try {
             config.useSingleServer()
-                    .setAddress("redis://192.168.2.47:6379")
+                    .setAddress("redis://localhost:6379")
                     .setConnectionMinimumIdleSize(4)
                     .setRetryAttempts(5)
-                    .setRetryInterval(10);
-
+                    .setRetryInterval(100);
         }
         catch (Exception e){
             log.warn("Redis Connection failed: {}",e.getMessage());
@@ -39,7 +35,7 @@ public class RedisConfig {
 
     @Bean
     public UnifiedJedis getJedis(){
-        List<HostAndPort> config= Arrays.asList(new HostAndPort("192.168.2.47", 6379));
+        List<HostAndPort> config= Arrays.asList(new HostAndPort("localhost", 6379));
         ShardedConnectionProvider provider= new ShardedConnectionProvider(config);
         UnifiedJedis client= new UnifiedJedis(provider);
         return client;

@@ -18,7 +18,7 @@ public class Producer {
      * @param topic the topic name
      */
     public void sendToTopic(String data, String topic, int partition, String key){
-        final ProducerRecord<String, String> producerRecord = new ProducerRecord<>(topic,partition,key,data); //create producer record
+        final ProducerRecord<String, String> producerRecord = new ProducerRecord<>(topic,partition,key,data);           //create producer record
         kafkaTemplate.send(producerRecord);
     }
 }

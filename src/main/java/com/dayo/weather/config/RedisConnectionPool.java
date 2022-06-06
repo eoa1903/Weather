@@ -26,9 +26,6 @@ public class RedisConnectionPool {
     @Autowired
     public UnifiedJedis jedis;
 
-
-    private static RBucket<String> bucket;
-
     private static final ObjectMapper objectMapper=new ObjectMapper();
 
     static {
@@ -61,7 +58,7 @@ public class RedisConnectionPool {
                 .orElse(null);
     }
     public void updateRefreshTimeStamp(String feedID, WeatherMetaDataDto data) throws JsonProcessingException {
-        bucket = redissonClient.getBucket("weatherMetadata_"+feedID);
+        RBucket<String> bucket = redissonClient.getBucket("weatherMetadata_"+feedID);
         bucket.set(objectMapper.writeValueAsString(data));
     }
 

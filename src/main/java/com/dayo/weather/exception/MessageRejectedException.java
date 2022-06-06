@@ -13,13 +13,4 @@ public class MessageRejectedException extends Exception{
     public String getMessage() {
         return String.format(statusCode.getMessage(), arguments);
     }
-
-    public StatusCode getStatusCode() {
-        return statusCode;
-    }
-
-
-    public Object[] getArguments() {
-        return arguments;
-    }
 }
